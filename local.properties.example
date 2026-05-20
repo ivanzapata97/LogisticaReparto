@@ -1,0 +1,7 @@
+# Configuración de Firebase/Firestore
+# Copia este archivo como local.properties y rellena los valores reales.
+# NO subas el archivo local.properties a GitHub.
+
+firestore.projectId=tu_project_id
+firestore.apiKey=tu_api_key
+firestore.applicationId=tu_app_id
