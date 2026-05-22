@@ -38,6 +38,29 @@ class AuthViewModel : ViewModel(){
         }
     }
 
+    fun signUp(email: String, password: String) {
+        uiState = AuthUiState.Loading
+        viewModelScope.launch {
+            try {
+                auth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            uiState = AuthUiState.Success
+                        } else {
+                            uiState = AuthUiState.Error(task.exception?.message ?: "Error al registrarse")
+                        }
+                    }
+            } catch (e: Exception) {
+                uiState = AuthUiState.Error("Error de conexión: ${e.message}")
+            }
+        }
+    }
+
+    fun logout() {
+        auth.signOut()
+        uiState = AuthUiState.Idle
+    }
+
     fun resetState(){
         uiState = AuthUiState.Idle
     }

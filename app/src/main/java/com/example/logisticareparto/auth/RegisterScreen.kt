@@ -1,27 +1,15 @@
 package com.example.logisticareparto.auth
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Login
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,25 +19,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLoginSucess: () -> Unit) {
+fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNavigateToLogin: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
 
     val uiState = viewModel.uiState
     val redColor = Color(0xFFE30613)
 
-    // controlamos el popup para error de inicio de sesion
     var showDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
     LaunchedEffect(uiState) {
         if (uiState is AuthUiState.Error) {
-            // traducimos el error de fb a un popup
-            errorMessage = (if (uiState.message.contains("badly formatted") || uiState.message.contains("invalid")) {
-                "El usuario o contraseña son incorrectos."
-            } else {
-                "No se pudo iniciar sesión. Revisa la conexión"
-            })
+            errorMessage = uiState.message
             showDialog = true
         }
     }
@@ -94,7 +77,7 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
             )
 
             Text(
-                text = "Ingresar",
+                text = "Completa tus datos",
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = Color.Gray,
                     fontSize = 16.sp
@@ -107,7 +90,7 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                placeholder = { Text("Usuario o email") },
+                placeholder = { Text("Usuario o Legajo") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 leadingIcon = {
@@ -139,7 +122,34 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
                 singleLine = true,
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.Login,
+                        imageVector = Icons.Default.PersonAdd,
+                        contentDescription = null,
+                        tint = Color.Gray
+                    )
+                },
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = redColor,
+                    unfocusedBorderColor = Color(0xFFE0E0E0),
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    cursorColor = redColor
+                )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Confirmar Contraseña
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                placeholder = { Text("Confirmar Contraseña") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Check,
                         contentDescription = null,
                         tint = Color.Gray
                     )
@@ -156,9 +166,16 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Botón Ingresar
+            // Botón Crear Cuenta
             Button(
-                onClick = { viewModel.login(email, password) },
+                onClick = {
+                    if (password == confirmPassword) {
+                        viewModel.signUp(email, password)
+                    } else {
+                        errorMessage = "Las contraseñas no coinciden"
+                        showDialog = true
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -173,7 +190,7 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                 } else {
                     Text(
-                        "Ingresar",
+                        "Crear Cuenta",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -182,27 +199,25 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            // Texto Registrate
-            TextButton(onClick = { onNavigateToRegister() }) {
+            // Texto Volver al Login
+            TextButton(onClick = { onNavigateToLogin() }) {
                 Text(
-                    text = "Crear cuenta",
+                    text = "Ya tengo cuenta. Ingresar",
                     color = redColor,
                     fontWeight = FontWeight.Bold
                 )
             }
         }
     }
-    //resultado
-    if (showDialog){
+
+    if (showDialog) {
         AlertDialog(
             onDismissRequest = {
                 showDialog = false
                 viewModel.resetState()
             },
-            title = {Text(text = "Error de Ingreso")},
-            text = {
-                Text(text = errorMessage)
-            },
+            title = { Text(text = "Error de Registro") },
+            text = { Text(text = errorMessage) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -215,12 +230,10 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
             }
         )
     }
-    when (uiState) {
-        is AuthUiState.Success -> {
-            LaunchedEffect(Unit) {
-                onLoginSucess()
-            }
+
+    if (uiState is AuthUiState.Success) {
+        LaunchedEffect(Unit) {
+            onRegisterSuccess()
         }
-        else -> {}
     }
 }

@@ -1,42 +1,61 @@
 package com.example.logisticareparto.navigation
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.Text
 import com.example.logisticareparto.auth.AuthViewModel
 import com.example.logisticareparto.auth.LoginScreen
+import com.example.logisticareparto.auth.RegisterScreen
+import com.example.logisticareparto.main.MainScreen
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun AppNavigation(){
     val navController = rememberNavController()
     val authViewModel : AuthViewModel = viewModel()
+    
+    // Verificar si el usuario ya está logueado
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val startDestination = if (currentUser != null) "main" else "login"
 
-    NavHost(navController = navController, startDestination = "login"){
-        //ruta 1 Login
+    NavHost(navController = navController, startDestination = startDestination){
+        //Login
         composable("login"){
-            LoginScreen(viewModel = authViewModel) {
-                navController.navigate("seleccion_camion"){
+            LoginScreen(
+                viewModel = authViewModel,
+                onNavigateToRegister = { navController.navigate("register") }
+            ) {
+                navController.navigate("main"){
                     popUpTo("login") { inclusive = true}
                 }
             }
         }
 
-        composable("seleccion_camion") {
-            PantallaSeleccionTemporal()
+        //Registro
+        composable("register"){
+            RegisterScreen(
+                viewModel = authViewModel,
+                onRegisterSuccess = {
+                    navController.navigate("main") {
+                        popUpTo("register") { inclusive = true }
+                    }
+                },
+                onNavigateToLogin = { navController.popBackStack() }
+            )
         }
-    }
-}
 
-@Composable
-fun PantallaSeleccionTemporal(){
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-        Text(text = "Login Exitoso, aca va la seleccion de camion")
+        // Ruta Principal 
+        composable("main") {
+            MainScreen(
+                authViewModel = authViewModel,
+                onLogout = {
+                    navController.navigate("login") {
+                        popUpTo("main") { inclusive = true }
+                    }
+                }
+            )
+        }
     }
 }

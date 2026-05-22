@@ -25,21 +25,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-val testAuth = com.google.firebase.auth.FirebaseAuth.getInstance()
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    LogisticaRepartoTheme {
-        Greeting("Android")
-    }
-}
