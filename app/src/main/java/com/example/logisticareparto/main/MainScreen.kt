@@ -17,6 +17,7 @@ import com.example.logisticareparto.auth.AuthViewModel
 import com.example.logisticareparto.clients.ClientsScreen
 import com.example.logisticareparto.clients.ClientsViewModel
 import com.example.logisticareparto.clients.detail.ClientDetailScreen
+import com.example.logisticareparto.clients.edit.ClientEditScreen
 import com.example.logisticareparto.profile.ProfileScreen
 import com.example.logisticareparto.search.SearchScreen
 
@@ -98,7 +99,19 @@ fun MainScreen(authViewModel: AuthViewModel, onLogout: () -> Unit) {
                 ClientDetailScreen(
                     clientId = clientId,
                     viewModel = clientsViewModel,
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onEditClick = { navController.navigate("edit_cliente/$clientId") }
+                )
+            }
+            composable("edit_cliente/{clientId}") { backStackEntry ->
+                val clientId = backStackEntry.arguments?.getString("clientId") ?: ""
+                ClientEditScreen(
+                    clientId = clientId,
+                    viewModel = clientsViewModel,
+                    onBack = { navController.popBackStack() },
+                    onSaveSuccess = { 
+                        navController.popBackStack("inicio", inclusive = false)
+                    }
                 )
             }
         }

@@ -13,7 +13,10 @@ data class Client(
     val contacto: List<String> = emptyList(),
     val apertura: String = "",
     val cierre: String = "",
-    val es24: Boolean = false
+    val es24: Boolean = false,
+    val latitud: Double = 0.0,
+    val longitud: Double = 0.0,
+    val imagenUrl: String = ""
 ) {
     fun getEstadoHorario(): Pair<String, Boolean> {
         if (es24) return Pair("Abierto 24hs", true)

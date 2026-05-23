@@ -16,7 +16,7 @@ fun AppNavigation(){
     val navController = rememberNavController()
     val authViewModel : AuthViewModel = viewModel()
     
-    // Verificar si el usuario ya está logueado
+    // Verificar si el usuario ya está logueado para persistencia de sesion
     val currentUser = FirebaseAuth.getInstance().currentUser
     val startDestination = if (currentUser != null) "main" else "login"
 

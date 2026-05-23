@@ -40,6 +40,13 @@ android {
         buildConfigField("String", "FIRESTORE_API_KEY", formatProperty("firestore.apiKey"))
         buildConfigField("String", "FIRESTORE_APP_ID", formatProperty("firestore.applicationId"))
         
+        buildConfigField("String", "CLOUDINARY_CLOUD_NAME", formatProperty("cloudinary.cloudName"))
+        buildConfigField("String", "CLOUDINARY_UPLOAD_PRESET", formatProperty("cloudinary.uploadPreset"))
+        
+        // Extraer la API Key de Maps sin comillas para el manifiesto
+        val rawMapsKey = localProperties.getProperty("maps.apiKey") ?: ""
+        manifestPlaceholders["MAPS_API_KEY"] = rawMapsKey.replace("\"", "")
+        
         buildFeatures { 
             buildConfig = true
         }
@@ -85,4 +92,14 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("androidx.navigation:navigation-compose:2.9.8")
+    
+    // google Maps para Compose
+    implementation("com.google.maps.android:maps-compose:4.4.1")
+    implementation("com.google.android.gms:play-services-maps:19.0.0")
+
+    // coil para cargar imágenes
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
+    // cloudinary para subir imágenes
+    implementation("com.cloudinary:cloudinary-android:3.1.2")
 }
