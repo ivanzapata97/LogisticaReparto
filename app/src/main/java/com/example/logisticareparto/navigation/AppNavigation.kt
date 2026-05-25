@@ -8,17 +8,20 @@ import androidx.navigation.compose.rememberNavController
 import com.example.logisticareparto.auth.AuthViewModel
 import com.example.logisticareparto.auth.LoginScreen
 import com.example.logisticareparto.auth.RegisterScreen
+import com.example.logisticareparto.clients.ClientsViewModel
 import com.example.logisticareparto.main.MainScreen
+import com.example.logisticareparto.trucks.TruckSelectionScreen
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun AppNavigation(){
     val navController = rememberNavController()
     val authViewModel : AuthViewModel = viewModel()
+    val clientsViewModel: ClientsViewModel = viewModel()
     
     // Verificar si el usuario ya está logueado para persistencia de sesion
     val currentUser = FirebaseAuth.getInstance().currentUser
-    val startDestination = if (currentUser != null) "main" else "login"
+    val startDestination = if (currentUser != null) "truck_selection" else "login"
 
     NavHost(navController = navController, startDestination = startDestination){
         //Login
@@ -27,7 +30,7 @@ fun AppNavigation(){
                 viewModel = authViewModel,
                 onNavigateToRegister = { navController.navigate("register") }
             ) {
-                navController.navigate("main"){
+                navController.navigate("truck_selection"){
                     popUpTo("login") { inclusive = true}
                 }
             }
@@ -38,7 +41,7 @@ fun AppNavigation(){
             RegisterScreen(
                 viewModel = authViewModel,
                 onRegisterSuccess = {
-                    navController.navigate("main") {
+                    navController.navigate("truck_selection") {
                         popUpTo("register") { inclusive = true }
                     }
                 },
@@ -46,12 +49,30 @@ fun AppNavigation(){
             )
         }
 
+        //Elección de Camión
+        composable("truck_selection") {
+            TruckSelectionScreen(
+                onTruckSelected = { truck ->
+                    clientsViewModel.setTruck(truck)
+                    navController.navigate("main") {
+                        popUpTo("truck_selection") { inclusive = true }
+                    }
+                }
+            )
+        }
+
         // Ruta Principal 
         composable("main") {
             MainScreen(
                 authViewModel = authViewModel,
+                clientsViewModel = clientsViewModel,
                 onLogout = {
                     navController.navigate("login") {
+                        popUpTo("main") { inclusive = true }
+                    }
+                },
+                onChangeTruck = {
+                    navController.navigate("truck_selection") {
                         popUpTo("main") { inclusive = true }
                     }
                 }

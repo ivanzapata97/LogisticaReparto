@@ -9,22 +9,26 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.logisticareparto.auth.AuthViewModel
 import com.example.logisticareparto.clients.ClientsScreen
 import com.example.logisticareparto.clients.ClientsViewModel
+import com.example.logisticareparto.clients.create.ClientCreateScreen
 import com.example.logisticareparto.clients.detail.ClientDetailScreen
 import com.example.logisticareparto.clients.edit.ClientEditScreen
 import com.example.logisticareparto.profile.ProfileScreen
 import com.example.logisticareparto.search.SearchScreen
 
 @Composable
-fun MainScreen(authViewModel: AuthViewModel, onLogout: () -> Unit) {
+fun MainScreen(
+    authViewModel: AuthViewModel, 
+    clientsViewModel: ClientsViewModel, 
+    onLogout: () -> Unit,
+    onChangeTruck: () -> Unit
+) {
     val navController = rememberNavController()
-    val clientsViewModel: ClientsViewModel = viewModel()
     val redColor = Color(0xFFE30613)
 
     var selectedItem by remember { mutableIntStateOf(0) }
@@ -88,11 +92,18 @@ fun MainScreen(authViewModel: AuthViewModel, onLogout: () -> Unit) {
                     viewModel = clientsViewModel,
                     onClientClick = { clientId -> 
                         navController.navigate("detalle_cliente/$clientId")
-                    }
+                    },
+                    onAddClientClick = { navController.navigate("crear_cliente") },
+                    onArmarRutaClick = { /* Próxima funcionalidad */ }
                 )
             }
             composable("perfil") {
-                ProfileScreen(authViewModel = authViewModel, onLogout = onLogout)
+                ProfileScreen(
+                    authViewModel = authViewModel, 
+                    clientsViewModel = clientsViewModel,
+                    onChangeTruck = onChangeTruck,
+                    onLogout = onLogout
+                )
             }
             composable("detalle_cliente/{clientId}") { backStackEntry ->
                 val clientId = backStackEntry.arguments?.getString("clientId") ?: ""
@@ -111,6 +122,15 @@ fun MainScreen(authViewModel: AuthViewModel, onLogout: () -> Unit) {
                     onBack = { navController.popBackStack() },
                     onSaveSuccess = { 
                         navController.popBackStack("inicio", inclusive = false)
+                    }
+                )
+            }
+            composable("crear_cliente") {
+                ClientCreateScreen(
+                    viewModel = clientsViewModel,
+                    onBack = { navController.popBackStack() },
+                    onSuccess = {
+                        navController.popBackStack("buscar", inclusive = false)
                     }
                 )
             }

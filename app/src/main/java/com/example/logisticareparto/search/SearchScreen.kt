@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Route
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,7 +19,12 @@ import com.example.logisticareparto.clients.ClientsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
+fun SearchScreen(
+    viewModel: ClientsViewModel, 
+    onClientClick: (String) -> Unit,
+    onAddClientClick: () -> Unit,
+    onArmarRutaClick: () -> Unit
+) {
     var searchQuery by remember { mutableStateOf("") }
     val uiState = viewModel.uiState
     val redColor = Color(0xFFE30613)
@@ -25,7 +32,15 @@ fun SearchScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Buscar Clientes", fontWeight = FontWeight.Bold, color = Color.White) },
+                title = { Text("Clientes", fontWeight = FontWeight.Bold, color = Color.White) },
+                actions = {
+                    IconButton(onClick = onArmarRutaClick) {
+                        Icon(imageVector = Icons.Default.Route, contentDescription = "Armar Ruta", tint = Color.White)
+                    }
+                    IconButton(onClick = onAddClientClick) {
+                        Icon(imageVector = Icons.Default.Add, contentDescription = "Agregar Cliente", tint = Color.White)
+                    }
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = redColor)
             )
         }
@@ -52,7 +67,10 @@ fun SearchScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
             
             if (uiState is ClientsUiState.Success) {
-                val filteredClients = uiState.clients.filter {
+                // cuando usamos buscar queremos a todos los clientes de todos los repartos.
+                val allClients = viewModel.getFilteredClients(uiState.clients, onlyTruck = false, onlyToday = false)
+                
+                val filteredClients = allClients.filter {
                     it.cliente.contains(searchQuery, ignoreCase = true) || 
                     it.direccion.contains(searchQuery, ignoreCase = true)
                 }

@@ -68,9 +68,11 @@ fun ClientsScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit, 
                     )
                 }
                 is ClientsUiState.Success -> {
-                    if (uiState.clients.isEmpty()) {
+                    val filteredClients = viewModel.getFilteredClients(uiState.clients)
+                    
+                    if (filteredClients.isEmpty()) {
                         Text(
-                            text = "No hay clientes registrados",
+                            text = "No hay clientes para este camión hoy",
                             modifier = Modifier.align(Alignment.Center),
                             color = Color.Gray
                         )
@@ -80,7 +82,7 @@ fun ClientsScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit, 
                             contentPadding = PaddingValues(16.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            items(uiState.clients) { client ->
+                            items(filteredClients) { client ->
                                 ClientItem(client, onClick = { onClientClick(client.id) })
                             }
                         }

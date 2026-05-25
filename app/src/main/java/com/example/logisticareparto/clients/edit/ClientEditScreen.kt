@@ -47,6 +47,7 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
     // Estado local para los campos editables (se inicializan cuando se carga el cliente)
     var editedNombre by remember(currentClient?.id) { mutableStateOf(currentClient?.cliente ?: "") }
     var editedDireccion by remember(currentClient?.id) { mutableStateOf(currentClient?.direccion ?: "") }
+    var editedReparto by remember(currentClient?.id) { mutableStateOf(currentClient?.reparto?.toString() ?: "") }
     
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -128,7 +129,7 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
                     }
                 }
 
-                // formulario para editar. debemos incluir mas opciones aun
+                // FORMULARIO DE EDICIÓN
                 OutlinedTextField(
                     value = editedNombre,
                     onValueChange = { editedNombre = it },
@@ -139,19 +140,41 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Ej: Calle 123, Quilmes, Buenos Aires",
+                        fontSize = 12.sp,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
+                    )
+                    OutlinedTextField(
+                        value = editedDireccion,
+                        onValueChange = { editedDireccion = it },
+                        label = { Text("Dirección Exacta") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 OutlinedTextField(
-                    value = editedDireccion,
-                    onValueChange = { editedDireccion = it },
-                    label = { Text("Dirección") },
+                    value = editedReparto,
+                    onValueChange = { editedReparto = it },
+                    label = { Text("Número de Reparto") },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                        keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
                     onClick = {
-                        viewModel.updateClientBasicData(clientId, editedNombre, editedDireccion)
+                        val repartoInt = editedReparto.toIntOrNull() ?: currentClient?.reparto ?: 0
+                        viewModel.updateClientBasicData(clientId, editedNombre, editedDireccion, repartoInt)
                         onSaveSuccess()
                     },
                     modifier = Modifier.fillMaxWidth().height(56.dp),
