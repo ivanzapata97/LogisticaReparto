@@ -42,6 +42,7 @@ android {
         
         buildConfigField("String", "CLOUDINARY_CLOUD_NAME", formatProperty("cloudinary.cloudName"))
         buildConfigField("String", "CLOUDINARY_UPLOAD_PRESET", formatProperty("cloudinary.uploadPreset"))
+        buildConfigField("String", "GEMINI_API_KEY", formatProperty("gemini.apiKey"))
         
         // Extraer la API Key de Maps sin comillas para el manifiesto
         val rawMapsKey = localProperties.getProperty("maps.apiKey") ?: ""
@@ -102,4 +103,15 @@ dependencies {
 
     // cloudinary para subir imágenes
     implementation("com.cloudinary:cloudinary-android:3.1.2")
+
+    // Gemini AI
+    implementation("com.google.firebase:firebase-vertexai:16.5.0")
+
+    // CameraX
+    val cameraxVersion = "1.4.1"
+    implementation("androidx.camera:camera-core:$cameraxVersion")
+    implementation("androidx.camera:camera-camera2:$cameraxVersion")
+    implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
+    implementation("androidx.camera:camera-view:$cameraxVersion")
+    implementation("androidx.camera:camera-extensions:$cameraxVersion")
 }

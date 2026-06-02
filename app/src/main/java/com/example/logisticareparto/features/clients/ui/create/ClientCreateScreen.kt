@@ -34,6 +34,7 @@ fun ClientCreateScreen(viewModel: ClientsViewModel, onBack: () -> Unit, onSucces
     val context = LocalContext.current
     
     var nombre by remember { mutableStateOf("") }
+    var codigoCliente by remember { mutableStateOf("") }
     var direccion by remember { mutableStateOf("") }
     var contacto by remember { mutableStateOf("") }
     var cuil by remember { mutableStateOf("") }
@@ -104,6 +105,16 @@ fun ClientCreateScreen(viewModel: ClientsViewModel, onBack: () -> Unit, onSucces
             }
 
             // formulario
+            OutlinedTextField(
+                value = codigoCliente,
+                onValueChange = { codigoCliente = it },
+                label = { Text("Número de Cliente (Planilla)") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             OutlinedTextField(value = nombre, onValueChange = { nombre = it }, label = { Text("Nombre / Razón Social") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
             
             Spacer(modifier = Modifier.height(12.dp))
@@ -213,6 +224,7 @@ fun ClientCreateScreen(viewModel: ClientsViewModel, onBack: () -> Unit, onSucces
             Button(
                 onClick = {
                     val nuevoCliente = Client(
+                        codigoCliente = codigoCliente,
                         cliente = nombre,
                         direccion = direccion,
                         contacto = contacto.split(",").map { it.trim() }.filter { it.isNotEmpty() },

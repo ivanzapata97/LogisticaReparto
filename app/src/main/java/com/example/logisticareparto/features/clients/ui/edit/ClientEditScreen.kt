@@ -45,6 +45,7 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
     }
 
     // Estado local para los campos editables (se inicializan cuando se carga el cliente)
+    var editedCodigo by remember(currentClient?.id) { mutableStateOf(currentClient?.codigoCliente ?: "") }
     var editedNombre by remember(currentClient?.id) { mutableStateOf(currentClient?.cliente ?: "") }
     var editedDireccion by remember(currentClient?.id) { mutableStateOf(currentClient?.direccion ?: "") }
     var editedReparto by remember(currentClient?.id) { mutableStateOf(currentClient?.reparto?.toString() ?: "") }
@@ -131,6 +132,16 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
 
                 // FORMULARIO DE EDICIÓN
                 OutlinedTextField(
+                    value = editedCodigo,
+                    onValueChange = { editedCodigo = it },
+                    label = { Text("Número de Cliente (Planilla)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
                     value = editedNombre,
                     onValueChange = { editedNombre = it },
                     label = { Text("Nombre del Cliente") },
@@ -174,7 +185,7 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
                 Button(
                     onClick = {
                         val repartoInt = editedReparto.toIntOrNull() ?: currentClient?.reparto ?: 0
-                        viewModel.updateClientBasicData(clientId, editedNombre, editedDireccion, repartoInt)
+                        viewModel.updateClientBasicData(clientId, editedCodigo, editedNombre, editedDireccion, repartoInt)
                         onSaveSuccess()
                     },
                     modifier = Modifier.fillMaxWidth().height(56.dp),

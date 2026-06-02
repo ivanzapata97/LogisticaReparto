@@ -118,13 +118,23 @@ fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: ()
                                 .padding(top = 32.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
                             contentAlignment = Alignment.BottomStart
                         ) {
-                            Text(
-                                text = client.cliente,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                                style = MaterialTheme.typography.headlineMedium
-                            )
+                            Column {
+                                Text(
+                                    text = client.cliente,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.headlineMedium
+                                )
+                                if (client.codigoCliente.isNotEmpty()) {
+                                    Text(
+                                        text = "Cód: ${client.codigoCliente}",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = Color.White.copy(alpha = 0.9f)
+                                    )
+                                }
+                            }
                         }
                     }
                 }

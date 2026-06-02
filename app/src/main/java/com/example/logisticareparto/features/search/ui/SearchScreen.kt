@@ -5,7 +5,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Route
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,8 +21,7 @@ import com.example.logisticareparto.features.clients.viewmodel.ClientsViewModel
 fun SearchScreen(
     viewModel: ClientsViewModel, 
     onClientClick: (String) -> Unit,
-    onAddClientClick: () -> Unit,
-    onArmarRutaClick: () -> Unit
+    onAddClientClick: () -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val uiState = viewModel.uiState
@@ -34,9 +32,6 @@ fun SearchScreen(
             CenterAlignedTopAppBar(
                 title = { Text("Clientes", fontWeight = FontWeight.Bold, color = Color.White) },
                 actions = {
-                    IconButton(onClick = onArmarRutaClick) {
-                        Icon(imageVector = Icons.Default.Route, contentDescription = "Armar Ruta", tint = Color.White)
-                    }
                     IconButton(onClick = onAddClientClick) {
                         Icon(imageVector = Icons.Default.Add, contentDescription = "Agregar Cliente", tint = Color.White)
                     }

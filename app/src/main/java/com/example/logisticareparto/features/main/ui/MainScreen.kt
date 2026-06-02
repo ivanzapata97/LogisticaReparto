@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Route
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,6 +20,7 @@ import com.example.logisticareparto.features.clients.ui.create.ClientCreateScree
 import com.example.logisticareparto.features.clients.ui.detail.ClientDetailScreen
 import com.example.logisticareparto.features.clients.ui.edit.ClientEditScreen
 import com.example.logisticareparto.features.profile.ui.ProfileScreen
+import com.example.logisticareparto.features.route.ui.RouteScreen
 import com.example.logisticareparto.features.search.ui.SearchScreen
 
 @Composable
@@ -32,8 +34,8 @@ fun MainScreen(
     val redColor = Color(0xFFE30613)
 
     var selectedItem by remember { mutableIntStateOf(0) }
-    val items = listOf("Inicio", "Buscar", "Perfil")
-    val icons = listOf(Icons.Default.Assignment, Icons.Default.Search, Icons.Default.Person)
+    val items = listOf("Inicio", "Buscar", "Ruta", "Perfil")
+    val icons = listOf(Icons.Default.Assignment, Icons.Default.Search, Icons.Default.Route, Icons.Default.Person)
 
     Scaffold(
         bottomBar = {
@@ -56,7 +58,10 @@ fun MainScreen(
                                 1 -> navController.navigate("buscar") {
                                     launchSingleTop = true
                                 }
-                                2 -> navController.navigate("perfil") {
+                                2 -> navController.navigate("ruta") {
+                                    launchSingleTop = true
+                                }
+                                3 -> navController.navigate("perfil") {
                                     launchSingleTop = true
                                 }
                             }
@@ -93,8 +98,15 @@ fun MainScreen(
                     onClientClick = { clientId -> 
                         navController.navigate("detalle_cliente/$clientId")
                     },
-                    onAddClientClick = { navController.navigate("crear_cliente") },
-                    onArmarRutaClick = { /* Próxima funcionalidad */ }
+                    onAddClientClick = { navController.navigate("crear_cliente") }
+                )
+            }
+            composable("ruta") {
+                RouteScreen(
+                    viewModel = clientsViewModel,
+                    onClientClick = { clientId -> 
+                        navController.navigate("detalle_cliente/$clientId")
+                    }
                 )
             }
             composable("perfil") {

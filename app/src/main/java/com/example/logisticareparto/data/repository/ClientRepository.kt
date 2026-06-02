@@ -21,6 +21,7 @@ class ClientRepository(private val db: FirebaseFirestore = FirebaseFirestore.get
 
     suspend fun createClient(client: Client): Result<Unit> = try {
         val clientMap = mapOf(
+            "codigoCliente" to client.codigoCliente,
             "cliente" to client.cliente,
             "direccion" to client.direccion,
             "contacto" to client.contacto,

@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter
 
 data class Client(
     val id: String = "",
+    val codigoCliente: String = "",
     val cliente: String = "",
     val direccion: String = "",
     val dias: List<String> = emptyList(),

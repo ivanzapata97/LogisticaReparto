@@ -1,6 +1,7 @@
 package com.example.logisticareparto.features.clients.viewmodel
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.location.Geocoder
 import android.net.Uri
 import androidx.compose.runtime.mutableIntStateOf
@@ -12,6 +13,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.logisticareparto.BuildConfig
 import com.example.logisticareparto.data.models.Client
 import com.example.logisticareparto.data.repository.ClientRepository
+import com.google.firebase.Firebase
+import com.google.firebase.vertexai.vertexAI
+import com.google.firebase.vertexai.type.content
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -21,13 +25,70 @@ sealed class ClientsUiState {
     data class Error(val message: String) : ClientsUiState()
 }
 
+sealed class RouteUiState {
+    object Idle : RouteUiState()
+    object Processing : RouteUiState()
+    data class Success(val clients: List<Client>) : RouteUiState()
+    data class Error(val message: String) : RouteUiState()
+}
+
 class ClientsViewModel(private val repository: ClientRepository) : ViewModel() {
     
     var uiState by mutableStateOf<ClientsUiState>(ClientsUiState.Loading)
         private set
+    
+    var routeUiState by mutableStateOf<RouteUiState>(RouteUiState.Idle)
+        private set
 
     var selectedTruck by mutableIntStateOf(0)
         private set
+
+
+
+    private val generativeModel = Firebase.vertexAI(location = "us-central1").generativeModel("gemini-2.5-flash")
+
+    fun processRouteImage(bitmap: Bitmap) {
+        routeUiState = RouteUiState.Processing
+        viewModelScope.launch {
+            try {
+                val inputContent = content {
+                    image(bitmap)
+                    text("Esta es una planilla de logistica llamada 'Guía de Fletero'. " +
+                         "Extrae todos los números de la columna 'Cliente' (códigos de cliente). " +
+                         "Devuélveme solo los números separados por comas, nada más.")
+                }
+                
+                val response = generativeModel.generateContent(inputContent)
+                val codesText = response.text ?: ""
+                val extractedCodes = codesText.split(",")
+                    .map { it.trim() }
+                    .filter { it.isNotEmpty() }
+                
+                matchClientsWithCodes(extractedCodes)
+            } catch (e: Exception) {
+                routeUiState = RouteUiState.Error("Error al procesar imagen: ${e.message}")
+            }
+        }
+    }
+
+    private fun matchClientsWithCodes(codes: List<String>) {
+        viewModelScope.launch {
+            val allClients = if (uiState is ClientsUiState.Success) {
+                (uiState as ClientsUiState.Success).clients
+            } else {
+                repository.getClients()
+            }
+            
+            val matchedClients = allClients.filter { client ->
+                codes.contains(client.codigoCliente)
+            }
+            routeUiState = RouteUiState.Success(matchedClients)
+        }
+    }
+
+    fun resetRouteState() {
+        routeUiState = RouteUiState.Idle
+    }
 
     init {
         fetchClients()
@@ -89,9 +150,10 @@ class ClientsViewModel(private val repository: ClientRepository) : ViewModel() {
         }
     }
 
-    fun updateClientBasicData(clientId: String, nombre: String, direccion: String, reparto: Int) {
+    fun updateClientBasicData(clientId: String, codigo: String, nombre: String, direccion: String, reparto: Int) {
         viewModelScope.launch {
             repository.updateClientBasicData(clientId, mapOf(
+                "codigoCliente" to codigo,
                 "cliente" to nombre,
                 "direccion" to direccion,
                 "reparto" to reparto
