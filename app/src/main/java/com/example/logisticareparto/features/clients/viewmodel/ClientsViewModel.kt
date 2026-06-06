@@ -12,7 +12,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.logisticareparto.BuildConfig
 import com.example.logisticareparto.data.models.Client
+import com.example.logisticareparto.data.models.DeliveryRoute
+import com.example.logisticareparto.data.models.RouteStop
 import com.example.logisticareparto.data.repository.ClientRepository
+import com.example.logisticareparto.data.repository.RouteRepository
 import com.google.firebase.Firebase
 import com.google.firebase.vertexai.vertexAI
 import com.google.firebase.vertexai.type.content
@@ -32,7 +35,24 @@ sealed class RouteUiState {
     data class Error(val message: String) : RouteUiState()
 }
 
-class ClientsViewModel(private val repository: ClientRepository) : ViewModel() {
+sealed class RouteSaveUiState {
+    object Idle : RouteSaveUiState()
+    object Saving : RouteSaveUiState()
+    data class Success(val routeId: String) : RouteSaveUiState()
+    data class Error(val message: String) : RouteSaveUiState()
+}
+
+sealed class ActiveRouteUiState {
+    object Idle : ActiveRouteUiState()
+    object Loading : ActiveRouteUiState()
+    data class Success(val route: DeliveryRoute) : ActiveRouteUiState()
+    data class Error(val message: String) : ActiveRouteUiState()
+}
+
+class ClientsViewModel(
+    private val repository: ClientRepository,
+    private val routeRepository: RouteRepository
+) : ViewModel() {
     
     var uiState by mutableStateOf<ClientsUiState>(ClientsUiState.Loading)
         private set
@@ -40,12 +60,26 @@ class ClientsViewModel(private val repository: ClientRepository) : ViewModel() {
     var routeUiState by mutableStateOf<RouteUiState>(RouteUiState.Idle)
         private set
 
+    var routeSaveUiState by mutableStateOf<RouteSaveUiState>(RouteSaveUiState.Idle)
+        private set
+
+    var activeRouteUiState by mutableStateOf<ActiveRouteUiState>(ActiveRouteUiState.Idle)
+        private set
+
     var selectedTruck by mutableIntStateOf(0)
         private set
 
+    // `routeDraft` es la hoja editable compartida entre Buscar y Ruta.
+    var routeDraft by mutableStateOf<List<Client>>(emptyList())
+        private set
 
+    var routeDraftSource by mutableStateOf("manual")
+        private set
 
     private val generativeModel = Firebase.vertexAI(location = "us-central1").generativeModel("gemini-2.5-flash")
+
+    val hasActiveRoute: Boolean
+        get() = activeRouteUiState is ActiveRouteUiState.Success
 
     fun processRouteImage(bitmap: Bitmap) {
         routeUiState = RouteUiState.Processing
@@ -78,10 +112,22 @@ class ClientsViewModel(private val repository: ClientRepository) : ViewModel() {
             } else {
                 repository.getClients()
             }
-            
-            val matchedClients = allClients.filter { client ->
+
+            val truckClients = getFilteredClients(allClients)
+            val matchedClients = truckClients.filter { client ->
                 codes.contains(client.codigoCliente)
+            }.ifEmpty {
+                allClients.filter { client ->
+                    codes.contains(client.codigoCliente)
+                }
             }
+
+            if (matchedClients.isEmpty()) {
+                routeUiState = RouteUiState.Error("No encontramos clientes de la planilla en la base actual")
+                return@launch
+            }
+
+            replaceRouteDraft(matchedClients, source = "escaneo")
             routeUiState = RouteUiState.Success(matchedClients)
         }
     }
@@ -90,13 +136,165 @@ class ClientsViewModel(private val repository: ClientRepository) : ViewModel() {
         routeUiState = RouteUiState.Idle
     }
 
+    fun clearRouteSaveState() {
+        routeSaveUiState = RouteSaveUiState.Idle
+    }
+
+    fun clearActiveRouteState() {
+        activeRouteUiState = ActiveRouteUiState.Idle
+    }
+
+    fun isClientInRoute(clientId: String): Boolean {
+        return routeDraft.any { it.id == clientId }
+    }
+
+    fun addClientToRoute(client: Client) {
+        if (hasActiveRoute) return
+        if (isClientInRoute(client.id)) return
+
+        routeDraft = routeDraft + client
+        routeDraftSource = "manual"
+        routeSaveUiState = RouteSaveUiState.Idle
+    }
+
+    fun replaceRouteDraft(clients: List<Client>, source: String) {
+        routeDraft = clients.distinctBy { it.id }
+        routeDraftSource = source
+        routeSaveUiState = RouteSaveUiState.Idle
+    }
+
+    fun removeClientFromRoute(clientId: String) {
+        routeDraft = routeDraft.filterNot { it.id == clientId }
+        routeSaveUiState = RouteSaveUiState.Idle
+        if (routeDraft.isEmpty()) {
+            routeUiState = RouteUiState.Idle
+        }
+    }
+
+    fun moveRouteStopUp(index: Int) {
+        if (index <= 0 || index >= routeDraft.size) return
+        val updatedDraft = routeDraft.toMutableList()
+        val current = updatedDraft[index]
+        updatedDraft[index] = updatedDraft[index - 1]
+        updatedDraft[index - 1] = current
+        routeDraft = updatedDraft
+        routeSaveUiState = RouteSaveUiState.Idle
+    }
+
+    fun moveRouteStopDown(index: Int) {
+        if (index < 0 || index >= routeDraft.lastIndex) return
+        val updatedDraft = routeDraft.toMutableList()
+        val current = updatedDraft[index]
+        updatedDraft[index] = updatedDraft[index + 1]
+        updatedDraft[index + 1] = current
+        routeDraft = updatedDraft
+        routeSaveUiState = RouteSaveUiState.Idle
+    }
+
+    fun clearRouteDraft() {
+        routeDraft = emptyList()
+        routeDraftSource = "manual"
+        routeUiState = RouteUiState.Idle
+        routeSaveUiState = RouteSaveUiState.Idle
+    }
+
+    fun startCurrentRoute(onRouteStarted: ((Int) -> Unit)? = null) {
+        routeSaveUiState = RouteSaveUiState.Saving
+
+        viewModelScope.launch {
+            routeRepository.startRoute(selectedTruck, routeDraft)
+                .onSuccess { routeId ->
+                    loadActiveRoute()
+                    routeDraft = emptyList()
+                    routeDraftSource = "manual"
+                    routeUiState = RouteUiState.Idle
+                    routeSaveUiState = RouteSaveUiState.Success(routeId)
+                    onRouteStarted?.invoke(selectedTruck)
+                }
+                .onFailure { error ->
+                    routeSaveUiState = RouteSaveUiState.Error(error.message ?: "No se pudo iniciar la ruta")
+                }
+        }
+    }
+
+    fun markStopVisited(stop: RouteStop, onNextClientReady: ((RouteStop, Int) -> Unit)? = null) {
+        viewModelScope.launch {
+            routeRepository.markStopVisited(selectedTruck, stop.clientId)
+                .onSuccess { updatedRoute ->
+                    activeRouteUiState = ActiveRouteUiState.Success(updatedRoute)
+
+                    val nextStop = updatedRoute.sortedStops().firstOrNull { !it.isVisited }
+                    if (nextStop != null && nextStop.clientId != stop.clientId) {
+                        onNextClientReady?.invoke(nextStop, selectedTruck)
+                    }
+                }
+                .onFailure { error ->
+                    routeSaveUiState = RouteSaveUiState.Error(error.message ?: "No se pudo marcar la visita")
+                }
+        }
+    }
+
+    fun finishActiveRoute() {
+        viewModelScope.launch {
+            routeRepository.finishRoute(selectedTruck)
+                .onSuccess {
+                    activeRouteUiState = ActiveRouteUiState.Idle
+                    routeSaveUiState = RouteSaveUiState.Idle
+                    routeDraft = emptyList()
+                    routeUiState = RouteUiState.Idle
+                }
+                .onFailure { error ->
+                    routeSaveUiState = RouteSaveUiState.Error(error.message ?: "No se pudo finalizar la ruta")
+                }
+        }
+    }
+
+    fun loadActiveRoute() {
+        if (selectedTruck <= 0) {
+            activeRouteUiState = ActiveRouteUiState.Idle
+            return
+        }
+
+        activeRouteUiState = ActiveRouteUiState.Loading
+        viewModelScope.launch {
+            routeRepository.getActiveRouteForToday(selectedTruck)
+                .onSuccess { route ->
+                    activeRouteUiState = if (route == null) {
+                        ActiveRouteUiState.Idle
+                    } else {
+                        ActiveRouteUiState.Success(route)
+                    }
+                }
+                .onFailure { error ->
+                    activeRouteUiState = ActiveRouteUiState.Error(
+                        error.message ?: "No se pudo cargar la ruta activa"
+                    )
+                }
+        }
+    }
+
+    fun getActiveRouteStops(): List<RouteStop> {
+        val route = (activeRouteUiState as? ActiveRouteUiState.Success)?.route ?: return emptyList()
+        return route.sortedStops()
+    }
+
+    fun getRouteStopClient(stop: RouteStop): Client {
+        val allClients = (uiState as? ClientsUiState.Success)?.clients.orEmpty()
+        return stop.toClient(allClients)
+    }
+
     init {
         fetchClients()
     }
 
     fun setTruck(truck: Int) {
+        if (selectedTruck != 0 && selectedTruck != truck) {
+            clearRouteDraft()
+            clearActiveRouteState()
+        }
         selectedTruck = truck
         fetchClients()
+        loadActiveRoute()
     }
 
     private fun getCurrentDaySpanish(): String {

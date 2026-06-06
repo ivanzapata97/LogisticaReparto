@@ -43,6 +43,7 @@ android {
         buildConfigField("String", "CLOUDINARY_CLOUD_NAME", formatProperty("cloudinary.cloudName"))
         buildConfigField("String", "CLOUDINARY_UPLOAD_PRESET", formatProperty("cloudinary.uploadPreset"))
         buildConfigField("String", "GEMINI_API_KEY", formatProperty("gemini.apiKey"))
+        buildConfigField("String", "MAPS_API_KEY", formatProperty("maps.apiKey"))
         
         // Extraer la API Key de Maps sin comillas para el manifiesto
         val rawMapsKey = localProperties.getProperty("maps.apiKey") ?: ""

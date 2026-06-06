@@ -8,27 +8,28 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.logisticareparto.features.auth.viewmodel.AuthViewModel
+import com.example.logisticareparto.data.repository.AuthRepository
+import com.example.logisticareparto.data.repository.ClientRepository
+import com.example.logisticareparto.data.repository.RouteRepository
 import com.example.logisticareparto.features.auth.ui.LoginScreen
 import com.example.logisticareparto.features.auth.ui.RegisterScreen
+import com.example.logisticareparto.features.auth.viewmodel.AuthViewModel
 import com.example.logisticareparto.features.clients.viewmodel.ClientsViewModel
 import com.example.logisticareparto.features.main.ui.MainScreen
 import com.example.logisticareparto.features.trucks.ui.TruckSelectionScreen
-import com.example.logisticareparto.data.repository.AuthRepository
-import com.example.logisticareparto.data.repository.ClientRepository
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    
-    // Inicialización de Repositorios (Capa de Datos)
+
     val authRepository = remember { AuthRepository() }
     val clientRepository = remember { ClientRepository() }
+    val routeRepository = remember { RouteRepository() }
 
-    // Inyección de dependencias manual a través de ViewModels
     val authViewModel: AuthViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                @Suppress("UNCHECKED_CAST")
                 return AuthViewModel(authRepository) as T
             }
         }
@@ -37,12 +38,12 @@ fun AppNavigation() {
     val clientsViewModel: ClientsViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return ClientsViewModel(clientRepository) as T
+                @Suppress("UNCHECKED_CAST")
+                return ClientsViewModel(clientRepository, routeRepository) as T
             }
         }
     )
-    
-    // Lógica de inicio basada en persistencia
+
     val startDestination = if (authRepository.getCurrentUser() != null) "truck_selection" else "login"
 
     NavHost(navController = navController, startDestination = startDestination) {

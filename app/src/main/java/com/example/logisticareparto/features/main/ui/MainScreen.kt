@@ -98,7 +98,13 @@ fun MainScreen(
                     onClientClick = { clientId -> 
                         navController.navigate("detalle_cliente/$clientId")
                     },
-                    onAddClientClick = { navController.navigate("crear_cliente") }
+                    onAddClientClick = { navController.navigate("crear_cliente") },
+                    onOpenRouteClick = {
+                        selectedItem = 2
+                        navController.navigate("ruta") {
+                            launchSingleTop = true
+                        }
+                    }
                 )
             }
             composable("ruta") {

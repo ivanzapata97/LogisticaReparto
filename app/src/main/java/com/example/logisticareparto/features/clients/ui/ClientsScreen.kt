@@ -97,47 +97,63 @@ fun ClientsScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit, 
 }
 
 @Composable
-fun ClientItem(client: Client, onClick: () -> Unit) {
+fun ClientItem(
+    client: Client,
+    onClick: () -> Unit,
+    actionContent: (@Composable RowScope.() -> Unit)? = null
+) {
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
-        Row(
+        Column(
             modifier = Modifier
+                .fillMaxWidth()
                 .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = null,
-                tint = Color(0xFFE30613),
-                modifier = Modifier.size(40.dp)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                Text(
-                    text = client.cliente,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = null,
+                    tint = Color(0xFFE30613),
+                    modifier = Modifier.size(40.dp)
                 )
-                Text(
-                    text = client.direccion,
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
-                
-                // Indicador de Abierto/Cerrado
-                val (horarioTexto, estaAbierto) = client.getEstadoHorario()
-                Text(
-                    text = if (client.es24) "Abierto 24hs" else horarioTexto,
-                    fontSize = 12.sp,
-                    color = if (estaAbierto) Color(0xFF4CAF50) else Color(0xFFFF5252),
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 4.dp)
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = client.cliente,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                    Text(
+                        text = client.direccion,
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+
+                    val (horarioTexto, estaAbierto) = client.getEstadoHorario()
+                    Text(
+                        text = if (client.es24) "Abierto 24hs" else horarioTexto,
+                        fontSize = 12.sp,
+                        color = if (estaAbierto) Color(0xFF4CAF50) else Color(0xFFFF5252),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
+
+            if (actionContent != null) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    content = actionContent
                 )
             }
         }
