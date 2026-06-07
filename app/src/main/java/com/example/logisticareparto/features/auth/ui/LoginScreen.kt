@@ -39,7 +39,8 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
     var password by remember { mutableStateOf("") }
 
     val uiState = viewModel.uiState
-    val redColor = Color(0xFFE30613)
+    val coralRed = MaterialTheme.colorScheme.primary
+    val terracottaRed = MaterialTheme.colorScheme.secondary
 
     // controlamos el popup para error de inicio de sesion
     var showDialog by remember { mutableStateOf(false) }
@@ -73,7 +74,7 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
             Surface(
                 modifier = Modifier.size(80.dp),
                 shape = RoundedCornerShape(20.dp),
-                color = redColor,
+                color = terracottaRed,
                 shadowElevation = 4.dp
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -122,11 +123,11 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
                 },
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = redColor,
+                    focusedBorderColor = coralRed,
                     unfocusedBorderColor = Color(0xFFE0E0E0),
                     focusedTextColor = Color.Black,
                     unfocusedTextColor = Color.Black,
-                    cursorColor = redColor
+                    cursorColor = coralRed
                 )
             )
 
@@ -149,11 +150,11 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
                 },
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = redColor,
+                    focusedBorderColor = coralRed,
                     unfocusedBorderColor = Color(0xFFE0E0E0),
                     focusedTextColor = Color.Black,
                     unfocusedTextColor = Color.Black,
-                    cursorColor = redColor
+                    cursorColor = coralRed
                 )
             )
 
@@ -168,7 +169,7 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
                 enabled = uiState !is AuthUiState.Loading,
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = redColor,
+                    containerColor = coralRed,
                     contentColor = Color.White
                 )
             ) {
@@ -189,7 +190,7 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
             TextButton(onClick = { onNavigateToRegister() }) {
                 Text(
                     text = "Crear cuenta",
-                    color = redColor,
+                    color = terracottaRed,
                     fontWeight = FontWeight.Bold
                 )
             }

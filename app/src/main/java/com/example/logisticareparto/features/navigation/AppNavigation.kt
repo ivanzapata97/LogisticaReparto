@@ -2,6 +2,7 @@ package com.example.logisticareparto.features.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -11,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.logisticareparto.data.repository.AuthRepository
 import com.example.logisticareparto.data.repository.ClientRepository
 import com.example.logisticareparto.data.repository.RouteRepository
+import com.example.logisticareparto.data.repository.UserPreferencesRepository
 import com.example.logisticareparto.features.auth.ui.LoginScreen
 import com.example.logisticareparto.features.auth.ui.RegisterScreen
 import com.example.logisticareparto.features.auth.viewmodel.AuthViewModel
@@ -21,10 +23,12 @@ import com.example.logisticareparto.features.trucks.ui.TruckSelectionScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val context = LocalContext.current
 
     val authRepository = remember { AuthRepository() }
     val clientRepository = remember { ClientRepository() }
     val routeRepository = remember { RouteRepository() }
+    val userPrefs = remember { UserPreferencesRepository(context) }
 
     val authViewModel: AuthViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
@@ -39,12 +43,16 @@ fun AppNavigation() {
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 @Suppress("UNCHECKED_CAST")
-                return ClientsViewModel(clientRepository, routeRepository) as T
+                return ClientsViewModel(clientRepository, routeRepository, userPrefs) as T
             }
         }
     )
 
-    val startDestination = if (authRepository.getCurrentUser() != null) "truck_selection" else "login"
+    val startDestination = if (authRepository.getCurrentUser() != null) {
+        if (userPrefs.getSelectedTruck() > 0) "main" else "truck_selection"
+    } else {
+        "login"
+    }
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable("login") {
@@ -86,6 +94,7 @@ fun AppNavigation() {
                 authViewModel = authViewModel,
                 clientsViewModel = clientsViewModel,
                 onLogout = {
+                    userPrefs.clearSelectedTruck()
                     navController.navigate("login") {
                         popUpTo("main") { inclusive = true }
                     }

@@ -31,7 +31,8 @@ import com.example.logisticareparto.features.clients.viewmodel.ClientsViewModel
 @Composable
 fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -> Unit, onSaveSuccess: () -> Unit) {
     val uiState = viewModel.uiState
-    val redColor = Color(0xFFE30613)
+    val coralRed = MaterialTheme.colorScheme.primary
+    val terracottaRed = MaterialTheme.colorScheme.secondary
     val context = LocalContext.current
     
     // Mantenemos el cliente en un estado local para que no desaparezca al cargar
@@ -65,13 +66,13 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
                         Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = redColor)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = terracottaRed)
             )
         }
     ) { padding ->
         if (currentClient == null && uiState is ClientsUiState.Loading) {
             Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = redColor)
+                CircularProgressIndicator(color = coralRed)
                 Text("Buscando datos...", modifier = Modifier.padding(top = 16.dp))
             }
         } else if (currentClient == null) {
@@ -136,7 +137,11 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
                     onValueChange = { editedCodigo = it },
                     label = { Text("Número de Cliente (Planilla)") },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = coralRed,
+                        cursorColor = coralRed
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -146,7 +151,11 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
                     onValueChange = { editedNombre = it },
                     label = { Text("Nombre del Cliente") },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = coralRed,
+                        cursorColor = coralRed
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -163,7 +172,11 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
                         onValueChange = { editedDireccion = it },
                         label = { Text("Dirección Exacta") },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = coralRed,
+                            cursorColor = coralRed
+                        )
                     )
                 }
 
@@ -177,6 +190,10 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
                     shape = RoundedCornerShape(12.dp),
                     keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                         keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                    ),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = coralRed,
+                        cursorColor = coralRed
                     )
                 )
 
@@ -190,7 +207,7 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
                     },
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = redColor)
+                    colors = ButtonDefaults.buttonColors(containerColor = coralRed)
                 ) {
                     Icon(Icons.Default.Save, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))

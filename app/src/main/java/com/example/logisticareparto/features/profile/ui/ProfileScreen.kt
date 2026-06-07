@@ -27,13 +27,14 @@ fun ProfileScreen(
     onLogout: () -> Unit
 ) {
     val user = remember { Firebase.auth.currentUser }
-    val redColor = Color(0xFFE30613)
+    val coralRed = MaterialTheme.colorScheme.primary
+    val terracottaRed = MaterialTheme.colorScheme.secondary
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Mi Perfil", fontWeight = FontWeight.Bold, color = Color.White) },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = redColor)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = terracottaRed)
             )
         }
     ) { padding ->
@@ -48,7 +49,7 @@ fun ProfileScreen(
                 imageVector = Icons.Default.Person,
                 contentDescription = null,
                 modifier = Modifier.size(100.dp),
-                tint = redColor
+                tint = terracottaRed
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -64,7 +65,7 @@ fun ProfileScreen(
             Text(
                 text = "Camión Asignado: ${clientsViewModel.selectedTruck}",
                 fontSize = 16.sp,
-                color = redColor,
+                color = terracottaRed,
                 fontWeight = FontWeight.SemiBold
             )
             
@@ -75,8 +76,8 @@ fun ProfileScreen(
                 onClick = onChangeTruck,
                 modifier = Modifier.fillMaxWidth(),
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = redColor),
-                border = androidx.compose.foundation.BorderStroke(1.dp, redColor)
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = terracottaRed),
+                border = androidx.compose.foundation.BorderStroke(1.dp, terracottaRed)
             ) {
                 Icon(Icons.Default.LocalShipping, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
@@ -91,7 +92,7 @@ fun ProfileScreen(
                     onLogout()
                 },
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = redColor),
+                colors = ButtonDefaults.buttonColors(containerColor = coralRed),
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
             ) {
                 Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null)

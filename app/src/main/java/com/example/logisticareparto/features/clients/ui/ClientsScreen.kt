@@ -22,7 +22,8 @@ import com.example.logisticareparto.features.clients.viewmodel.ClientsViewModel
 @Composable
 fun ClientsScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit, onBack: (() -> Unit)? = null) {
     val uiState = viewModel.uiState
-    val redColor = Color(0xFFE30613)
+    val coralRed = MaterialTheme.colorScheme.primary
+    val terracottaRed = MaterialTheme.colorScheme.secondary
 
     Scaffold(
         topBar = {
@@ -46,7 +47,7 @@ fun ClientsScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit, 
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = redColor
+                    containerColor = terracottaRed
                 )
             )
         }
@@ -60,7 +61,7 @@ fun ClientsScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit, 
                 is ClientsUiState.Loading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
-                        color = redColor
+                        color = coralRed
                     )
                 }
                 is ClientsUiState.Error -> {
@@ -108,51 +109,46 @@ fun ClientItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    tint = Color(0xFFE30613),
-                    modifier = Modifier.size(40.dp)
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.size(40.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = client.cliente,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
                 )
-                Spacer(modifier = Modifier.width(16.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = client.cliente,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                    Text(
-                        text = client.direccion,
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
+                Text(
+                    text = client.direccion,
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
 
-                    val (horarioTexto, estaAbierto) = client.getEstadoHorario()
-                    Text(
-                        text = if (client.es24) "Abierto 24hs" else horarioTexto,
-                        fontSize = 12.sp,
-                        color = if (estaAbierto) Color(0xFF4CAF50) else Color(0xFFFF5252),
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
+                val (horarioTexto, estaAbierto) = client.getEstadoHorario()
+                Text(
+                    text = if (client.es24) "Abierto 24hs" else horarioTexto,
+                    fontSize = 12.sp,
+                    color = if (estaAbierto) Color(0xFF4CAF50) else Color(0xFFFF5252),
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
             }
-
+            
             if (actionContent != null) {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically,
                     content = actionContent
                 )
             }

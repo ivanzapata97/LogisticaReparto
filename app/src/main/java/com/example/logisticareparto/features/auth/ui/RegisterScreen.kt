@@ -28,7 +28,8 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
     var confirmPassword by remember { mutableStateOf("") }
 
     val uiState = viewModel.uiState
-    val redColor = Color(0xFFE30613)
+    val coralRed = MaterialTheme.colorScheme.primary
+    val terracottaRed = MaterialTheme.colorScheme.secondary
 
     var showDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
@@ -56,7 +57,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
             Surface(
                 modifier = Modifier.size(80.dp),
                 shape = RoundedCornerShape(20.dp),
-                color = redColor,
+                color = terracottaRed,
                 shadowElevation = 4.dp
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -105,11 +106,11 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
                 },
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = redColor,
+                    focusedBorderColor = coralRed,
                     unfocusedBorderColor = Color(0xFFE0E0E0),
                     focusedTextColor = Color.Black,
                     unfocusedTextColor = Color.Black,
-                    cursorColor = redColor
+                    cursorColor = coralRed
                 )
             )
 
@@ -132,11 +133,11 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
                 },
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = redColor,
+                    focusedBorderColor = coralRed,
                     unfocusedBorderColor = Color(0xFFE0E0E0),
                     focusedTextColor = Color.Black,
                     unfocusedTextColor = Color.Black,
-                    cursorColor = redColor
+                    cursorColor = coralRed
                 )
             )
 
@@ -159,11 +160,11 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
                 },
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = redColor,
+                    focusedBorderColor = coralRed,
                     unfocusedBorderColor = Color(0xFFE0E0E0),
                     focusedTextColor = Color.Black,
                     unfocusedTextColor = Color.Black,
-                    cursorColor = redColor
+                    cursorColor = coralRed
                 )
             )
 
@@ -185,7 +186,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
                 enabled = uiState !is AuthUiState.Loading,
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = redColor,
+                    containerColor = coralRed,
                     contentColor = Color.White
                 )
             ) {
@@ -206,7 +207,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
             TextButton(onClick = { onNavigateToLogin() }) {
                 Text(
                     text = "Ya tengo cuenta. Ingresar",
-                    color = redColor,
+                    color = terracottaRed,
                     fontWeight = FontWeight.Bold
                 )
             }

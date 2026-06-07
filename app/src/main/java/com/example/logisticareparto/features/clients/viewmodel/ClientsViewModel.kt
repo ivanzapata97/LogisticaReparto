@@ -16,10 +16,12 @@ import com.example.logisticareparto.data.models.DeliveryRoute
 import com.example.logisticareparto.data.models.RouteStop
 import com.example.logisticareparto.data.repository.ClientRepository
 import com.example.logisticareparto.data.repository.RouteRepository
+import com.example.logisticareparto.data.repository.UserPreferencesRepository
 import com.google.firebase.Firebase
 import com.google.firebase.vertexai.vertexAI
 import com.google.firebase.vertexai.type.content
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.util.Locale
 
 sealed class ClientsUiState {
@@ -51,7 +53,8 @@ sealed class ActiveRouteUiState {
 
 class ClientsViewModel(
     private val repository: ClientRepository,
-    private val routeRepository: RouteRepository
+    private val routeRepository: RouteRepository,
+    private val userPrefs: UserPreferencesRepository
 ) : ViewModel() {
     
     var uiState by mutableStateOf<ClientsUiState>(ClientsUiState.Loading)
@@ -66,7 +69,7 @@ class ClientsViewModel(
     var activeRouteUiState by mutableStateOf<ActiveRouteUiState>(ActiveRouteUiState.Idle)
         private set
 
-    var selectedTruck by mutableIntStateOf(0)
+    var selectedTruck by mutableIntStateOf(userPrefs.getSelectedTruck())
         private set
 
     // `routeDraft` es la hoja editable compartida entre Buscar y Ruta.
@@ -134,6 +137,9 @@ class ClientsViewModel(
 
     fun resetRouteState() {
         routeUiState = RouteUiState.Idle
+        routeDraft = emptyList()
+        routeDraftSource = "manual"
+        routeSaveUiState = RouteSaveUiState.Idle
     }
 
     fun clearRouteSaveState() {
@@ -285,6 +291,9 @@ class ClientsViewModel(
 
     init {
         fetchClients()
+        if (selectedTruck > 0) {
+            loadActiveRoute()
+        }
     }
 
     fun setTruck(truck: Int) {
@@ -293,6 +302,7 @@ class ClientsViewModel(
             clearActiveRouteState()
         }
         selectedTruck = truck
+        userPrefs.saveSelectedTruck(truck)
         fetchClients()
         loadActiveRoute()
     }

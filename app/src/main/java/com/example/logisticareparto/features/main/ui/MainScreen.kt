@@ -31,7 +31,7 @@ fun MainScreen(
     onChangeTruck: () -> Unit
 ) {
     val navController = rememberNavController()
-    val redColor = Color(0xFFE30613)
+    val terracottaRed = MaterialTheme.colorScheme.secondary
 
     var selectedItem by remember { mutableIntStateOf(0) }
     val items = listOf("Inicio", "Buscar", "Ruta", "Perfil")
@@ -67,11 +67,11 @@ fun MainScreen(
                             }
                         },
                         colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = redColor,
-                            selectedTextColor = redColor,
+                            selectedIconColor = terracottaRed,
+                            selectedTextColor = terracottaRed,
                             unselectedIconColor = Color.Gray,
                             unselectedTextColor = Color.Gray,
-                            indicatorColor = Color(0xFFFDEBEC)
+                            indicatorColor = terracottaRed.copy(alpha = 0.1f)
                         )
                     )
                 }

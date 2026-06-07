@@ -35,22 +35,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Map
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -96,7 +81,8 @@ private data class MapPresentation(
 @Composable
 fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
     val context = LocalContext.current
-    val redColor = Color(0xFFE30613)
+    val coralRed = MaterialTheme.colorScheme.primary
+    val terracottaRed = MaterialTheme.colorScheme.secondary
     val routeState = viewModel.routeUiState
     val routeSaveState = viewModel.routeSaveUiState
     val routeDraft = viewModel.routeDraft
@@ -204,17 +190,17 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                     )
                 },
                 actions = {
-                    if (routeDraftSource == "escaneo" && routeDraft.isNotEmpty()) {
+                    if (routeDraft.isNotEmpty() && activeRouteState !is ActiveRouteUiState.Success) {
                         IconButton(onClick = viewModel::resetRouteState) {
-                            Icon(Icons.Default.CameraAlt, contentDescription = "Nuevo escaneo", tint = Color.White)
-                        }
-                    } else if (routeDraft.isNotEmpty()) {
-                        IconButton(onClick = viewModel::clearRouteDraft) {
-                            Icon(Icons.Default.Clear, contentDescription = "Limpiar ruta", tint = Color.White)
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Limpiar todo",
+                                tint = Color.White
+                            )
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = redColor)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = terracottaRed)
             )
         },
         bottomBar = {
@@ -230,8 +216,8 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                 routeDraft.isNotEmpty() -> {
                     RouteBottomBar(
                         label = "Iniciar Ruta",
-                        containerColor = redColor,
-                        contentColor = Color.Black,
+                        containerColor = coralRed,
+                        contentColor = Color.White,
                         textSize = 18.sp,
                         trailingIcon = Icons.Default.Map,
                         onTrailingClick = {
@@ -261,11 +247,11 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
     ) { padding ->
         when {
             routeState is RouteUiState.Processing -> {
-                LoadingRouteState(modifier = Modifier.padding(padding), redColor = redColor)
+                LoadingRouteState(modifier = Modifier.padding(padding), redColor = coralRed)
             }
 
             activeRouteState is ActiveRouteUiState.Loading -> {
-                LoadingRouteState(modifier = Modifier.padding(padding), redColor = redColor)
+                LoadingRouteState(modifier = Modifier.padding(padding), redColor = coralRed)
             }
 
             activeRouteState is ActiveRouteUiState.Success -> {
@@ -273,7 +259,7 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                     modifier = Modifier.padding(padding),
                     stops = viewModel.getActiveRouteStops(),
                     selectedTruck = viewModel.selectedTruck,
-                    redColor = redColor,
+                    redColor = coralRed,
                     onClientClick = onClientClick,
                     stopToClient = viewModel::getRouteStopClient,
                     onOpenMap = { clients ->
@@ -301,18 +287,20 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                     ScannedRouteContent(
                         modifier = Modifier.padding(padding),
                         clients = routeDraft,
-                        redColor = redColor,
-                        onClientClick = onClientClick
+                        redColor = coralRed,
+                        onClientClick = onClientClick,
+                        onReset = viewModel::resetRouteState
                     )
                 } else {
                     RouteDraftEditor(
                         modifier = Modifier.padding(padding),
                         routeDraft = routeDraft,
-                        redColor = redColor,
+                        redColor = coralRed,
                         onClientClick = onClientClick,
                         onMoveUp = viewModel::moveRouteStopUp,
                         onMoveDown = viewModel::moveRouteStopDown,
-                        onRemove = viewModel::removeClientFromRoute
+                        onRemove = viewModel::removeClientFromRoute,
+                        onReset = viewModel::resetRouteState
                     )
                 }
             }
@@ -322,7 +310,7 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                     modifier = Modifier.padding(padding),
                     message = activeRouteState.message,
                     onRetry = viewModel::loadActiveRoute,
-                    redColor = redColor
+                    redColor = coralRed
                 )
             }
 
@@ -331,14 +319,14 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                     modifier = Modifier.padding(padding),
                     message = routeState.message,
                     onRetry = viewModel::resetRouteState,
-                    redColor = redColor
+                    redColor = coralRed
                 )
             }
 
             else -> {
                 EmptyRouteState(
                     modifier = Modifier.padding(padding),
-                    redColor = redColor,
+                    redColor = coralRed,
                     onScan = { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) },
                     onPickImage = { galleryLauncher.launch("image/*") }
                 )
@@ -352,10 +340,12 @@ private fun ScannedRouteContent(
     modifier: Modifier,
     clients: List<Client>,
     redColor: Color,
-    onClientClick: (String) -> Unit
+    onClientClick: (String) -> Unit,
+    onReset: () -> Unit
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         val clientsWithCoordinates = clients.filter(::hasValidCoordinates)
+        // ... (map code unchanged)
         if (clientsWithCoordinates.isNotEmpty()) {
             val firstClient = clientsWithCoordinates.first()
             val cameraPositionState = rememberCameraPositionState {
@@ -401,6 +391,17 @@ private fun ScannedRouteContent(
         ) {
             itemsIndexed(clients, key = { _, client -> client.id }) { _, client ->
                 ClientItem(client = client, onClick = { onClientClick(client.id) })
+            }
+            
+            item {
+                TextButton(
+                    onClick = onReset,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Borrar estos resultados y volver a escanear", color = Color.Gray)
+                }
             }
         }
     }
@@ -511,7 +512,8 @@ private fun RouteDraftEditor(
     onClientClick: (String) -> Unit,
     onMoveUp: (Int) -> Unit,
     onMoveDown: (Int) -> Unit,
-    onRemove: (String) -> Unit
+    onRemove: (String) -> Unit,
+    onReset: () -> Unit
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         LazyColumn(
@@ -541,6 +543,17 @@ private fun RouteDraftEditor(
                         }
                     }
                 )
+            }
+            
+            item {
+                TextButton(
+                    onClick = onReset,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Limpiar borrador y empezar de cero", color = Color.Gray)
+                }
             }
         }
     }
@@ -715,6 +728,7 @@ private fun RouteMapScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
+    val terracottaRed = MaterialTheme.colorScheme.secondary
     var hasLocationPermission by remember { mutableStateOf(hasLocationPermission(context)) }
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -774,7 +788,7 @@ private fun RouteMapScreen(
                         Icon(Icons.Default.Clear, contentDescription = "Cerrar mapa", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFE30613))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = terracottaRed)
             )
         }
     ) { padding ->

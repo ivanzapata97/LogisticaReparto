@@ -40,7 +40,8 @@ import com.google.maps.android.compose.rememberMarkerState
 @Composable
 fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -> Unit, onEditClick: () -> Unit) {
     val uiState = viewModel.uiState
-    val redColor = Color(0xFFE30613)
+    val coralRed = MaterialTheme.colorScheme.primary
+    val terracottaRed = MaterialTheme.colorScheme.secondary
 
     val client = remember(uiState) {
         if (uiState is ClientsUiState.Success) {
@@ -57,7 +58,7 @@ fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: ()
                         Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = redColor)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = terracottaRed)
             )
         }
     ) { padding ->
@@ -93,13 +94,13 @@ fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: ()
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .background(redColor.copy(alpha = 0.1f)),
+                                    .background(terracottaRed.copy(alpha = 0.1f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Person,
                                     contentDescription = null,
-                                    tint = redColor,
+                                    tint = terracottaRed,
                                     modifier = Modifier.size(80.dp)
                                 )
                             }
@@ -183,7 +184,7 @@ fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: ()
                     onClick = onEditClick,
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = redColor)
+                    colors = ButtonDefaults.buttonColors(containerColor = coralRed)
                 ) {
                     Icon(Icons.Default.Edit, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))

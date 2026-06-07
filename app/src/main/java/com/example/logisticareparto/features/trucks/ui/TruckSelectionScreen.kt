@@ -19,14 +19,15 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TruckSelectionScreen(onTruckSelected: (Int) -> Unit) {
-    val redColor = Color(0xFFE30613)
+    val coralRed = MaterialTheme.colorScheme.primary
+    val terracottaRed = MaterialTheme.colorScheme.secondary
     val trucks = listOf(5, 12, 16, 21, 31, 76, 80, 85, 86, 88, 99, 145, 146)
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Selecciona tu Camión", fontWeight = FontWeight.Bold, color = Color.White) },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = redColor)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = terracottaRed)
             )
         }
     ) { padding ->
@@ -41,7 +42,7 @@ fun TruckSelectionScreen(onTruckSelected: (Int) -> Unit) {
                 imageVector = Icons.Default.LocalShipping,
                 contentDescription = null,
                 modifier = Modifier.size(64.dp),
-                tint = redColor
+                tint = coralRed
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -69,7 +70,7 @@ fun TruckSelectionScreen(onTruckSelected: (Int) -> Unit) {
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.White,
-                            contentColor = redColor
+                            contentColor = coralRed
                         ),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray)

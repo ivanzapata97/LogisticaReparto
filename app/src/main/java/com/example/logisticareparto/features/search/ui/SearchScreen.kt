@@ -14,19 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Route
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,7 +38,8 @@ fun SearchScreen(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val uiState = viewModel.uiState
-    val redColor = Color(0xFFE30613)
+    val coralRed = MaterialTheme.colorScheme.primary
+    val terracottaRed = MaterialTheme.colorScheme.secondary
     val routeCount = viewModel.routeDraft.size
     val hasActiveRoute = viewModel.hasActiveRoute
 
@@ -67,7 +56,7 @@ fun SearchScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = redColor)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = terracottaRed)
             )
         }
     ) { padding ->
@@ -85,8 +74,8 @@ fun SearchScreen(
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = redColor,
-                    cursorColor = redColor
+                    focusedBorderColor = coralRed,
+                    cursorColor = coralRed
                 )
             )
 
@@ -113,7 +102,10 @@ fun SearchScreen(
                                 color = Color.DarkGray
                             )
                         }
-                        Button(onClick = onOpenRouteClick) {
+                        Button(
+                            onClick = onOpenRouteClick,
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
+                        ) {
                             Icon(Icons.Default.Route, contentDescription = null)
                             Text("Ir a ruta")
                         }
@@ -135,14 +127,17 @@ fun SearchScreen(
                             Text(
                                 text = "Hoja de ruta en progreso",
                                 fontWeight = FontWeight.Bold,
-                                color = redColor
+                                color = terracottaRed
                             )
                             Text(
                                 text = "$routeCount parada(s) listas para ordenar",
                                 color = Color.DarkGray
                             )
                         }
-                        Button(onClick = onOpenRouteClick) {
+                        Button(
+                            onClick = onOpenRouteClick,
+                            colors = ButtonDefaults.buttonColors(containerColor = coralRed)
+                        ) {
                             Icon(Icons.Default.Route, contentDescription = null)
                             Text("Ver ruta")
                         }
@@ -173,15 +168,25 @@ fun SearchScreen(
                             onClick = { onClientClick(client.id) },
                             actionContent = {
                                 if (hasActiveRoute) {
-                                    Button(onClick = onOpenRouteClick) {
+                                    Button(
+                                        onClick = onOpenRouteClick,
+                                        colors = ButtonDefaults.buttonColors(containerColor = terracottaRed)
+                                    ) {
                                         Text("Ruta en curso")
                                     }
                                 } else if (isInRoute) {
-                                    Button(onClick = onOpenRouteClick) {
+                                    Button(
+                                        onClick = onOpenRouteClick,
+                                        colors = ButtonDefaults.buttonColors(containerColor = terracottaRed)
+                                    ) {
                                         Text("Ya esta en ruta")
                                     }
-                                } else {
-                                    OutlinedButton(onClick = { viewModel.addClientToRoute(client) }) {
+                                } else if (routeCount > 0) {
+                                    OutlinedButton(
+                                        onClick = { viewModel.addClientToRoute(client) },
+                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = coralRed),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, coralRed)
+                                    ) {
                                         Text("Sumar a ruta")
                                     }
                                 }
