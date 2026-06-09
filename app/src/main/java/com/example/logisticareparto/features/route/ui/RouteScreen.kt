@@ -91,8 +91,7 @@ private data class MapPresentation(
 @Composable
 fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
     val context = LocalContext.current
-    val coralRed = MaterialTheme.colorScheme.primary
-    val terracottaRed = MaterialTheme.colorScheme.secondary
+    val primaryColor = MaterialTheme.colorScheme.primary
     val routeState = viewModel.routeUiState
     val routeSaveState = viewModel.routeSaveUiState
     val routeDraft = viewModel.routeDraft
@@ -209,7 +208,7 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = terracottaRed)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = primaryColor)
             )
         },
         bottomBar = {
@@ -225,7 +224,7 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                 routeDraft.isNotEmpty() -> {
                     RouteBottomBar(
                         label = stringResource(R.string.btn_start_route),
-                        containerColor = coralRed,
+                        containerColor = primaryColor,
                         contentColor = Color.White,
                         textSize = 18.sp,
                         trailingIcon = Icons.Default.Map,
@@ -249,11 +248,11 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
     ) { padding ->
         when {
             routeState is RouteUiState.Processing -> {
-                LoadingRouteState(modifier = Modifier.padding(padding), redColor = coralRed)
+                LoadingRouteState(modifier = Modifier.padding(padding), redColor = primaryColor)
             }
 
             activeRouteState is ActiveRouteUiState.Loading -> {
-                LoadingRouteState(modifier = Modifier.padding(padding), redColor = coralRed)
+                LoadingRouteState(modifier = Modifier.padding(padding), redColor = primaryColor)
             }
 
             activeRouteState is ActiveRouteUiState.Success -> {
@@ -261,7 +260,7 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                     modifier = Modifier.padding(padding),
                     stops = viewModel.getActiveRouteStops(),
                     selectedTruck = viewModel.selectedTruck,
-                    redColor = coralRed,
+                    redColor = primaryColor,
                     onClientClick = onClientClick,
                     stopToClient = viewModel::getRouteStopClient,
                     onOpenMap = { clients ->
@@ -323,7 +322,7 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                 UnifiedRouteDraftContent(
                     modifier = Modifier.padding(padding),
                     routeDraft = routeDraft,
-                    redColor = coralRed,
+                    redColor = primaryColor,
                     onClientClick = onClientClick,
                     onMove = viewModel::moveClientInRoute,
                     onRemove = viewModel::removeClientFromRoute,
@@ -336,7 +335,7 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                     modifier = Modifier.padding(padding),
                     message = activeRouteState.message,
                     onRetry = viewModel::loadActiveRoute,
-                    redColor = coralRed
+                    redColor = primaryColor
                 )
             }
 
@@ -345,14 +344,14 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                     modifier = Modifier.padding(padding),
                     message = routeState.message,
                     onRetry = viewModel::resetRouteState,
-                    redColor = coralRed
+                    redColor = primaryColor
                 )
             }
 
             else -> {
                 EmptyRouteState(
                     modifier = Modifier.padding(padding),
-                    redColor = coralRed,
+                    redColor = primaryColor,
                     onScan = { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) },
                     onPickImage = { galleryLauncher.launch("image/*") }
                 )
@@ -811,7 +810,7 @@ private fun RouteMapScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val terracottaRed = MaterialTheme.colorScheme.secondary
+    val mapPrimaryColor = MaterialTheme.colorScheme.primary
     var hasLocationPermission by remember { mutableStateOf(hasLocationPermission(context)) }
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -871,7 +870,7 @@ private fun RouteMapScreen(
                         Icon(Icons.Default.Clear, contentDescription = null, tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = terracottaRed)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = mapPrimaryColor)
             )
         }
     ) { padding ->
@@ -879,7 +878,7 @@ private fun RouteMapScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            color = Color(0xFF111111)
+            color = MaterialTheme.colorScheme.background
         ) {
             Column(
                 modifier = Modifier

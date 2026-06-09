@@ -34,7 +34,7 @@ fun MainScreen(
     onChangeTruck: () -> Unit
 ) {
     val navController = rememberNavController()
-    val terracottaRed = MaterialTheme.colorScheme.secondary
+    val primaryColor = MaterialTheme.colorScheme.primary
 
     var selectedItem by remember { mutableIntStateOf(0) }
     
@@ -49,8 +49,8 @@ fun MainScreen(
     Scaffold(
         bottomBar = {
             NavigationBar(
-                containerColor = Color.White,
-                contentColor = Color.Gray
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
             ) {
                 items.forEachIndexed { index, item ->
                     NavigationBarItem(
@@ -76,11 +76,11 @@ fun MainScreen(
                             }
                         },
                         colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = terracottaRed,
-                            selectedTextColor = terracottaRed,
-                            unselectedIconColor = Color.Gray,
-                            unselectedTextColor = Color.Gray,
-                            indicatorColor = terracottaRed.copy(alpha = 0.1f)
+                            selectedIconColor = primaryColor,
+                            selectedTextColor = primaryColor,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            indicatorColor = primaryColor.copy(alpha = 0.1f)
                         )
                     )
                 }

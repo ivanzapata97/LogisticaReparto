@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -30,8 +31,9 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
     var confirmPassword by remember { mutableStateOf("") }
 
     val uiState = viewModel.uiState
-    val coralRed = MaterialTheme.colorScheme.primary
-    val terracottaRed = MaterialTheme.colorScheme.secondary
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val outlineColor = MaterialTheme.colorScheme.outline
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
 
     var showDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
@@ -57,7 +59,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Logo de la App
+            // logo de la App
             Card(
                 modifier = Modifier.size(100.dp),
                 shape = RoundedCornerShape(20.dp),
@@ -68,6 +70,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
                     Image(
                         painter = painterResource(id = R.drawable.ic_app_logo),
                         contentDescription = "Logo",
+                        contentScale = ContentScale.Inside,
                         modifier = Modifier.fillMaxSize().padding(6.dp)
                     )
                 }
@@ -79,14 +82,14 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
                 text = stringResource(R.string.login_title),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1A1C1E)
+                    color = Color(0xFF1C1C1E)
                 )
             )
 
             Text(
                 text = stringResource(R.string.register_subtitle),
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 16.sp
                 )
             )
@@ -109,11 +112,11 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
                 },
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = coralRed,
-                    unfocusedBorderColor = Color(0xFFE0E0E0),
+                    focusedBorderColor = primaryColor,
+                    unfocusedBorderColor = outlineColor,
+                    cursorColor = primaryColor,
                     focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    cursorColor = coralRed
+                    unfocusedTextColor = Color.Black
                 )
             )
 
@@ -131,16 +134,16 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
                     Icon(
                         imageVector = Icons.Default.PersonAdd,
                         contentDescription = null,
-                        tint = Color.Gray
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = coralRed,
-                    unfocusedBorderColor = Color(0xFFE0E0E0),
+                    focusedBorderColor = primaryColor,
+                    unfocusedBorderColor = outlineColor,
+                    cursorColor = primaryColor,
                     focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    cursorColor = coralRed
+                    unfocusedTextColor = Color.Black
                 )
             )
 
@@ -158,16 +161,16 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        tint = Color.Gray
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = coralRed,
-                    unfocusedBorderColor = Color(0xFFE0E0E0),
+                    focusedBorderColor = primaryColor,
+                    unfocusedBorderColor = outlineColor,
+                    cursorColor = primaryColor,
                     focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    cursorColor = coralRed
+                    unfocusedTextColor = Color.Black
                 )
             )
 
@@ -189,7 +192,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
                 enabled = uiState !is AuthUiState.Loading,
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = coralRed,
+                    containerColor = primaryColor,
                     contentColor = Color.White
                 )
             ) {
@@ -210,7 +213,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
             TextButton(onClick = { onNavigateToLogin() }) {
                 Text(
                     text = stringResource(R.string.link_already_have_account),
-                    color = terracottaRed,
+                    color = primaryColor,
                     fontWeight = FontWeight.Bold
                 )
             }

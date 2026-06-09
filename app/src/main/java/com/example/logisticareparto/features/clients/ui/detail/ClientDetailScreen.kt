@@ -43,8 +43,7 @@ import com.google.maps.android.compose.rememberMarkerState
 @Composable
 fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -> Unit, onEditClick: () -> Unit) {
     val uiState = viewModel.uiState
-    val coralRed = MaterialTheme.colorScheme.primary
-    val terracottaRed = MaterialTheme.colorScheme.secondary
+    val primaryColor = MaterialTheme.colorScheme.primary
 
     val client = remember(uiState) {
         if (uiState is ClientsUiState.Success) {
@@ -61,7 +60,7 @@ fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: ()
                         Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.btn_accept), tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = terracottaRed)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = primaryColor)
             )
         }
     ) { padding ->
@@ -97,13 +96,13 @@ fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: ()
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .background(terracottaRed.copy(alpha = 0.1f)),
+                                    .background(primaryColor.copy(alpha = 0.1f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Person,
                                     contentDescription = null,
-                                    tint = terracottaRed,
+                                    tint = primaryColor,
                                     modifier = Modifier.size(80.dp)
                                 )
                             }
@@ -195,7 +194,7 @@ fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: ()
                     onClick = onEditClick,
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = coralRed)
+                    colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
                 ) {
                     Icon(Icons.Default.Edit, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))

@@ -25,8 +25,7 @@ import com.example.logisticareparto.features.clients.viewmodel.ClientsViewModel
 @Composable
 fun ClientsScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit, onBack: (() -> Unit)? = null) {
     val uiState = viewModel.uiState
-    val coralRed = MaterialTheme.colorScheme.primary
-    val terracottaRed = MaterialTheme.colorScheme.secondary
+    val primaryColor = MaterialTheme.colorScheme.primary
 
     Scaffold(
         topBar = {
@@ -50,7 +49,7 @@ fun ClientsScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit, 
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = terracottaRed
+                    containerColor = primaryColor
                 )
             )
         }
@@ -64,13 +63,13 @@ fun ClientsScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit, 
                 is ClientsUiState.Loading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
-                        color = coralRed
+                        color = primaryColor
                     )
                 }
                 is ClientsUiState.Error -> {
                     Text(
                         text = uiState.message,
-                        color = Color.Red,
+                        color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.align(Alignment.Center).padding(16.dp)
                     )
                 }
@@ -81,7 +80,7 @@ fun ClientsScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit, 
                         Text(
                             text = stringResource(R.string.no_clients_truck_today),
                             modifier = Modifier.align(Alignment.Center),
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     } else {
                         LazyColumn(
@@ -104,7 +103,7 @@ fun ClientsScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit, 
 fun ClientItem(
     client: Client,
     onClick: () -> Unit,
-    containerColor: Color = Color.White,
+    containerColor: Color = MaterialTheme.colorScheme.surface,
     actionContent: (@Composable RowScope.() -> Unit)? = null
 ) {
     Card(
@@ -122,21 +121,20 @@ fun ClientItem(
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondary,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(40.dp)
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = client.cliente,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = client.direccion,
-                    fontSize = 14.sp,
-                    color = Color.Gray
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 val scheduleState = client.getScheduleState()
@@ -150,8 +148,8 @@ fun ClientItem(
 
                 Text(
                     text = horarioTexto,
-                    fontSize = 12.sp,
-                    color = if (estaAbierto) Color(0xFF4CAF50) else Color(0xFFFF5252),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (estaAbierto) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(top = 4.dp)
                 )

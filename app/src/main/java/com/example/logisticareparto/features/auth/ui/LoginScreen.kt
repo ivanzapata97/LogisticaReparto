@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -28,8 +29,9 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
     var password by remember { mutableStateOf("") }
 
     val uiState = viewModel.uiState
-    val coralRed = MaterialTheme.colorScheme.primary
-    val terracottaRed = MaterialTheme.colorScheme.secondary
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+    val outlineColor = MaterialTheme.colorScheme.outline
 
     // controlamos el popup para error de inicio de sesion
     var showDialog by remember { mutableStateOf(false) }
@@ -73,6 +75,7 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
                     Image(
                         painter = painterResource(id = R.drawable.ic_app_logo),
                         contentDescription = "Logo",
+                        contentScale = ContentScale.Inside,
                         modifier = Modifier.fillMaxSize().padding(8.dp)
                     )
                 }
@@ -84,21 +87,20 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
                 text = stringResource(R.string.login_title),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1A1C1E)
+                    color = Color(0xFF1C1C1E)
                 )
             )
 
             Text(
                 text = stringResource(R.string.login_subtitle),
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 16.sp
                 )
             )
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            // Campo Usuario/Email
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -109,22 +111,21 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = null,
-                        tint = Color.Gray
+                        tint = Color.Black
                     )
                 },
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = coralRed,
-                    unfocusedBorderColor = Color(0xFFE0E0E0),
+                    focusedBorderColor = primaryColor,
+                    unfocusedBorderColor = outlineColor,
+                    cursorColor = primaryColor,
                     focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    cursorColor = coralRed
+                    unfocusedTextColor = Color.Black
                 )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Campo Contraseña
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -136,22 +137,21 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Login,
                         contentDescription = null,
-                        tint = Color.Gray
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = coralRed,
-                    unfocusedBorderColor = Color(0xFFE0E0E0),
+                    focusedBorderColor = primaryColor,
+                    unfocusedBorderColor = outlineColor,
+                    cursorColor = primaryColor,
                     focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    cursorColor = coralRed
+                    unfocusedTextColor = Color.Black
                 )
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Botón Ingresar
             Button(
                 onClick = { viewModel.login(email, password) },
                 modifier = Modifier
@@ -160,7 +160,7 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
                 enabled = uiState !is AuthUiState.Loading,
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = coralRed,
+                    containerColor = primaryColor,
                     contentColor = Color.White
                 )
             ) {
@@ -177,11 +177,11 @@ fun LoginScreen(viewModel: AuthViewModel, onNavigateToRegister: () -> Unit, onLo
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            // Texto Registrate
+            // ir a registro
             TextButton(onClick = { onNavigateToRegister() }) {
                 Text(
                     text = stringResource(R.string.btn_create_account),
-                    color = terracottaRed,
+                    color = primaryColor,
                     fontWeight = FontWeight.Bold
                 )
             }

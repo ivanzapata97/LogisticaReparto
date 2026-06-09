@@ -19,15 +19,14 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TruckSelectionScreen(onTruckSelected: (Int) -> Unit) {
-    val coralRed = MaterialTheme.colorScheme.primary
-    val terracottaRed = MaterialTheme.colorScheme.secondary
+    val primaryColor = MaterialTheme.colorScheme.primary
     val trucks = listOf(5, 12, 16, 21, 31, 76, 80, 85, 86, 88, 99, 145, 146)
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Selecciona tu Camión", fontWeight = FontWeight.Bold, color = Color.White) },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = terracottaRed)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = primaryColor)
             )
         }
     ) { padding ->
@@ -42,7 +41,7 @@ fun TruckSelectionScreen(onTruckSelected: (Int) -> Unit) {
                 imageVector = Icons.Default.LocalShipping,
                 contentDescription = null,
                 modifier = Modifier.size(64.dp),
-                tint = coralRed
+                tint = primaryColor
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -51,7 +50,7 @@ fun TruckSelectionScreen(onTruckSelected: (Int) -> Unit) {
                 text = "¿En qué camión estás hoy?",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.DarkGray
+                color = MaterialTheme.colorScheme.onSurface
             )
             
             Spacer(modifier = Modifier.height(32.dp))
@@ -69,11 +68,11 @@ fun TruckSelectionScreen(onTruckSelected: (Int) -> Unit) {
                             .aspectRatio(1f),
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White,
-                            contentColor = coralRed
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = primaryColor
                         ),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray)
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                     ) {
                         Text(
                             text = truck.toString(),

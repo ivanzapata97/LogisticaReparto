@@ -32,8 +32,7 @@ fun ProfileScreen(
     onLogout: () -> Unit
 ) {
     val user = remember { Firebase.auth.currentUser }
-    val coralRed = MaterialTheme.colorScheme.primary
-    val terracottaRed = MaterialTheme.colorScheme.secondary
+    val primaryColor = MaterialTheme.colorScheme.primary
     
     val currentLang = clientsViewModel.currentLanguage
     val stats = clientsViewModel.driverStats
@@ -46,7 +45,7 @@ fun ProfileScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text(stringResource(R.string.title_profile), fontWeight = FontWeight.Bold, color = Color.White) },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = terracottaRed)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = primaryColor)
             )
         }
     ) { padding ->
@@ -61,24 +60,23 @@ fun ProfileScreen(
                 imageVector = Icons.Default.Person,
                 contentDescription = null,
                 modifier = Modifier.size(100.dp),
-                tint = terracottaRed
+                tint = primaryColor
             )
             
             Spacer(modifier = Modifier.height(16.dp))
             
             Text(
                 text = user?.email ?: stringResource(R.string.label_user_placeholder),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
             )
             
             Spacer(modifier = Modifier.height(8.dp))
             
             Text(
                 text = stringResource(R.string.label_assigned_truck, clientsViewModel.selectedTruck),
-                fontSize = 16.sp,
-                color = terracottaRed,
-                fontWeight = FontWeight.SemiBold
+                style = MaterialTheme.typography.titleMedium,
+                color = primaryColor
             )
             
             Spacer(modifier = Modifier.height(24.dp))
@@ -86,14 +84,13 @@ fun ProfileScreen(
             if (stats != null) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
                             text = "Estadísticas",
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Gray,
-                            fontSize = 14.sp
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -120,8 +117,8 @@ fun ProfileScreen(
                 onClick = { showLangDialog = true },
                 modifier = Modifier.fillMaxWidth(),
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = terracottaRed),
-                border = androidx.compose.foundation.BorderStroke(1.dp, terracottaRed)
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = primaryColor),
+                border = androidx.compose.foundation.BorderStroke(1.dp, primaryColor)
             ) {
                 Text(stringResource(R.string.label_app_language))
             }
@@ -173,8 +170,8 @@ fun ProfileScreen(
                 onClick = onChangeTruck,
                 modifier = Modifier.fillMaxWidth(),
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = terracottaRed),
-                border = androidx.compose.foundation.BorderStroke(1.dp, terracottaRed)
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = primaryColor),
+                border = androidx.compose.foundation.BorderStroke(1.dp, primaryColor)
             ) {
                 Icon(Icons.Default.LocalShipping, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
@@ -189,7 +186,7 @@ fun ProfileScreen(
                     onLogout()
                 },
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = coralRed),
+                colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
             ) {
                 Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null)
@@ -205,14 +202,14 @@ fun StatItem(value: String, label: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = value,
-            fontSize = 22.sp,
+            style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
         )
         Text(
             text = label,
-            fontSize = 12.sp,
-            color = Color.Gray
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

@@ -20,6 +20,7 @@ import com.example.logisticareparto.data.repository.RouteRepository
 import com.example.logisticareparto.data.repository.UserPreferencesRepository
 import com.example.logisticareparto.notifications.RouteNotificationHelper
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.vertexai.vertexAI
 import com.google.firebase.vertexai.type.content
 import kotlinx.coroutines.Job
@@ -300,6 +301,11 @@ class ClientsViewModel(
     }
 
     fun loadActiveRoute() {
+        if (FirebaseAuth.getInstance().currentUser == null) {
+            activeRouteUiState = ActiveRouteUiState.Idle
+            return
+        }
+
         if (selectedTruck <= 0) {
             activeRouteUiState = ActiveRouteUiState.Idle
             return
@@ -380,9 +386,11 @@ class ClientsViewModel(
     }
 
     init {
-        fetchClients()
-        if (selectedTruck > 0) {
-            loadActiveRoute()
+        if (FirebaseAuth.getInstance().currentUser != null) {
+            fetchClients()
+            if (selectedTruck > 0) {
+                loadActiveRoute()
+            }
         }
     }
 
@@ -425,13 +433,17 @@ class ClientsViewModel(
 
     fun uploadImage(context: Context, uri: Uri, clientId: String) {
         viewModelScope.launch {
-            repository.uploadImage(uri, BuildConfig.CLOUDINARY_UPLOAD_PRESET, BuildConfig.CLOUDINARY_CLOUD_NAME)
-                .onSuccess { imageUrl ->
-                    updateClientImage(clientId, imageUrl)
-                }
-                .onFailure { error ->
-                    uiState = ClientsUiState.Error("Error Cloudinary: ${error.message}")
-                }
+            try {
+                repository.uploadImage(uri, BuildConfig.CLOUDINARY_UPLOAD_PRESET, BuildConfig.CLOUDINARY_CLOUD_NAME)
+                    .onSuccess { imageUrl ->
+                        updateClientImage(clientId, imageUrl)
+                    }
+                    .onFailure { error ->
+                        uiState = ClientsUiState.Error("Error Cloudinary: ${error.message}")
+                    }
+            } catch (e: Exception) {
+                uiState = ClientsUiState.Error("Error al subir imagen: ${e.message}")
+            }
         }
     }
 
@@ -510,6 +522,11 @@ class ClientsViewModel(
     }
 
     fun fetchClients() {
+        if (FirebaseAuth.getInstance().currentUser == null) {
+            uiState = ClientsUiState.Success(emptyList())
+            return
+        }
+
         if (uiState !is ClientsUiState.Success) {
             uiState = ClientsUiState.Loading
         }

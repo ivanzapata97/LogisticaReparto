@@ -41,8 +41,7 @@ fun SearchScreen(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val uiState = viewModel.uiState
-    val coralRed = MaterialTheme.colorScheme.primary
-    val terracottaRed = MaterialTheme.colorScheme.secondary
+    val primaryColor = MaterialTheme.colorScheme.primary
     val routeCount = viewModel.routeDraft.size
     val hasActiveRoute = viewModel.hasActiveRoute
 
@@ -59,7 +58,7 @@ fun SearchScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = terracottaRed)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = primaryColor)
             )
         }
     ) { padding ->
@@ -77,8 +76,8 @@ fun SearchScreen(
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = coralRed,
-                    cursorColor = coralRed
+                    focusedBorderColor = primaryColor,
+                    cursorColor = primaryColor
                 )
             )
 
@@ -86,7 +85,7 @@ fun SearchScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE9F7EE))
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                 ) {
                     Row(
                         modifier = Modifier
@@ -98,16 +97,16 @@ fun SearchScreen(
                             Text(
                                 text = stringResource(R.string.route_active_title),
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF1B5E20)
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                             Text(
                                 text = stringResource(R.string.route_active_subtitle),
-                                color = Color.DarkGray
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         Button(
                             onClick = onOpenRouteClick,
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
+                            colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
                         ) {
                             Icon(Icons.Default.Route, contentDescription = null)
                             Text(stringResource(R.string.btn_go_to_route))
@@ -118,7 +117,7 @@ fun SearchScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFDEBEC))
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f))
                 ) {
                     Row(
                         modifier = Modifier
@@ -130,16 +129,16 @@ fun SearchScreen(
                             Text(
                                 text = stringResource(R.string.route_draft_title),
                                 fontWeight = FontWeight.Bold,
-                                color = terracottaRed
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                             Text(
                                 text = stringResource(R.string.route_draft_subtitle, routeCount),
-                                color = Color.DarkGray
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         Button(
                             onClick = onOpenRouteClick,
-                            colors = ButtonDefaults.buttonColors(containerColor = coralRed)
+                            colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
                         ) {
                             Icon(Icons.Default.Route, contentDescription = null)
                             Text(stringResource(R.string.btn_view_route))
@@ -173,22 +172,22 @@ fun SearchScreen(
                                 if (hasActiveRoute) {
                                     Button(
                                         onClick = onOpenRouteClick,
-                                        colors = ButtonDefaults.buttonColors(containerColor = terracottaRed)
+                                        colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
                                     ) {
                                         Text(stringResource(R.string.status_route_in_progress))
                                     }
                                 } else if (isInRoute) {
                                     Button(
                                         onClick = onOpenRouteClick,
-                                        colors = ButtonDefaults.buttonColors(containerColor = terracottaRed)
+                                        colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
                                     ) {
                                         Text(stringResource(R.string.status_already_in_route))
                                     }
                                 } else if (routeCount > 0) {
                                     OutlinedButton(
                                         onClick = { viewModel.addClientToRoute(client) },
-                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = coralRed),
-                                        border = androidx.compose.foundation.BorderStroke(1.dp, coralRed)
+                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = primaryColor),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, primaryColor)
                                     ) {
                                         Text(stringResource(R.string.btn_add_to_route))
                                     }

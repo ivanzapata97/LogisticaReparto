@@ -31,8 +31,7 @@ import com.example.logisticareparto.features.clients.viewmodel.ClientsViewModel
 @Composable
 fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -> Unit, onSaveSuccess: () -> Unit) {
     val uiState = viewModel.uiState
-    val coralRed = MaterialTheme.colorScheme.primary
-    val terracottaRed = MaterialTheme.colorScheme.secondary
+    val primaryColor = MaterialTheme.colorScheme.primary
     val context = LocalContext.current
     
     // Mantenemos el cliente en un estado local para que no desaparezca al cargar
@@ -66,13 +65,13 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
                         Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = terracottaRed)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = primaryColor)
             )
         }
     ) { padding ->
         if (currentClient == null && uiState is ClientsUiState.Loading) {
             Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = coralRed)
+                CircularProgressIndicator(color = primaryColor)
                 Text("Buscando datos...", modifier = Modifier.padding(top = 16.dp))
             }
         } else if (currentClient == null) {
@@ -139,8 +138,8 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = coralRed,
-                        cursorColor = coralRed
+                        focusedBorderColor = primaryColor,
+                        cursorColor = primaryColor
                     )
                 )
 
@@ -153,8 +152,8 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = coralRed,
-                        cursorColor = coralRed
+                        focusedBorderColor = primaryColor,
+                        cursorColor = primaryColor
                     )
                 )
 
@@ -174,8 +173,8 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = coralRed,
-                            cursorColor = coralRed
+                            focusedBorderColor = primaryColor,
+                            cursorColor = primaryColor
                         )
                     )
                 }
@@ -192,8 +191,8 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
                         keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
                     ),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = coralRed,
-                        cursorColor = coralRed
+                        focusedBorderColor = primaryColor,
+                        cursorColor = primaryColor
                     )
                 )
 
@@ -207,7 +206,7 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
                     },
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = coralRed)
+                    colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
                 ) {
                     Icon(Icons.Default.Save, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))

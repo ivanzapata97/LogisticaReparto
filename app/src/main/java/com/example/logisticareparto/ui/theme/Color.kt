@@ -2,17 +2,18 @@ package com.example.logisticareparto.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val CoralRed = Color(0xFFFF4D4D)
-val TerracottaRed = Color(0xFFB35A44)
+val CokeRed = Color(0xFFE4032F)
+val CokeRedDark = Color(0xFFB80025)
+val CokeRedLight = Color(0xFFFFF0F0)
 
-val DarkGrey = Color(0xFF1A1C1E)
-val LightGrey = Color(0xFFE0E0E0)
+val Charcoal = Color(0xFF1C1C1E)
+val DarkGray = Color(0xFF2C2C2E)
+val MediumGray = Color(0xFF8E8E93)
+val LightGray = Color(0xFFF2F2F7)
+val OffWhite = Color(0xFFF9F9FB)
 
-// Standard Material Colors
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val SuccessGreen = Color(0xFF34C759)
+val WarningYellow = Color(0xFFFFD60A)
+val ErrorRed = Color(0xFFFF3B30)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val CardLightGray = Color(0xFFF5F5F5)

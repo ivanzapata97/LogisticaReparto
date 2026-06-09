@@ -30,8 +30,7 @@ import com.example.logisticareparto.features.clients.viewmodel.ClientsViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClientCreateScreen(viewModel: ClientsViewModel, onBack: () -> Unit, onSuccess: () -> Unit) {
-    val coralRed = MaterialTheme.colorScheme.primary
-    val terracottaRed = MaterialTheme.colorScheme.secondary
+    val primaryColor = MaterialTheme.colorScheme.primary
     val context = LocalContext.current
     
     var nombre by remember { mutableStateOf("") }
@@ -59,7 +58,7 @@ fun ClientCreateScreen(viewModel: ClientsViewModel, onBack: () -> Unit, onSucces
                         Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = terracottaRed)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = primaryColor)
             )
         }
     ) { padding ->
@@ -203,7 +202,7 @@ fun ClientCreateScreen(viewModel: ClientsViewModel, onBack: () -> Unit, onSucces
             Spacer(modifier = Modifier.height(16.dp))
             
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                Checkbox(checked = es24, onCheckedChange = { es24 = it }, colors = CheckboxDefaults.colors(checkedColor = terracottaRed))
+                Checkbox(checked = es24, onCheckedChange = { es24 = it }, colors = CheckboxDefaults.colors(checkedColor = primaryColor))
                 Text("Atención 24hs")
             }
 
@@ -241,7 +240,7 @@ fun ClientCreateScreen(viewModel: ClientsViewModel, onBack: () -> Unit, onSucces
                 },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = coralRed),
+                colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
                 enabled = isFormValid
             ) {
                 Icon(Icons.Default.Save, contentDescription = null)
