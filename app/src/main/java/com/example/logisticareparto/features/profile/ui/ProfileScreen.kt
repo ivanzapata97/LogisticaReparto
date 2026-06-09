@@ -36,6 +36,11 @@ fun ProfileScreen(
     val terracottaRed = MaterialTheme.colorScheme.secondary
     
     val currentLang = clientsViewModel.currentLanguage
+    val stats = clientsViewModel.driverStats
+
+    LaunchedEffect(Unit) {
+        clientsViewModel.loadDriverStats()
+    }
 
     Scaffold(
         topBar = {
@@ -76,43 +81,89 @@ fun ProfileScreen(
                 fontWeight = FontWeight.SemiBold
             )
             
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Selector de Idioma
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = stringResource(R.string.label_app_language),
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Gray,
-                        fontSize = 14.sp
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        LanguageOption(
-                            label = stringResource(R.string.lang_es),
-                            isSelected = currentLang == "es",
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            clientsViewModel.setLanguage("es")
-                            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("es"))
+            if (stats != null) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Estadísticas",
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Gray,
+                            fontSize = 14.sp
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                            StatItem(value = "${stats.totalRoutes}", label = "Rutas totales")
+                            StatItem(value = "${stats.totalFinishedRoutes}", label = "Rutas finalizadas")
                         }
-                        LanguageOption(
-                            label = stringResource(R.string.lang_en),
-                            isSelected = currentLang == "en",
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            clientsViewModel.setLanguage("en")
-                            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("en"))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                            StatItem(value = "${stats.totalStops}", label = "Paradas totales")
+                            StatItem(value = "${stats.totalClientsVisited}", label = "Clientes visitados")
                         }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Selector de Idioma
+            var showLangDialog by remember { mutableStateOf(false) }
+
+            OutlinedButton(
+                onClick = { showLangDialog = true },
+                modifier = Modifier.fillMaxWidth(),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = terracottaRed),
+                border = androidx.compose.foundation.BorderStroke(1.dp, terracottaRed)
+            ) {
+                Text(stringResource(R.string.label_app_language))
+            }
+
+            if (showLangDialog) {
+                AlertDialog(
+                    onDismissRequest = { showLangDialog = false },
+                    title = { Text(stringResource(R.string.label_app_language)) },
+                    text = {
+                        Column {
+                            TextButton(
+                                onClick = {
+                                    clientsViewModel.setLanguage("es")
+                                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("es"))
+                                    showLangDialog = false
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    stringResource(R.string.lang_es),
+                                    color = if (currentLang == "es") MaterialTheme.colorScheme.primary else Color.Unspecified,
+                                    fontWeight = if (currentLang == "es") FontWeight.Bold else FontWeight.Normal
+                                )
+                            }
+                            TextButton(
+                                onClick = {
+                                    clientsViewModel.setLanguage("en")
+                                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("en"))
+                                    showLangDialog = false
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    stringResource(R.string.lang_en),
+                                    color = if (currentLang == "en") MaterialTheme.colorScheme.primary else Color.Unspecified,
+                                    fontWeight = if (currentLang == "en") FontWeight.Bold else FontWeight.Normal
+                                )
+                            }
+                        }
+                    },
+                    confirmButton = {}
+                )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -150,22 +201,19 @@ fun ProfileScreen(
 }
 
 @Composable
-fun LanguageOption(
-    label: String, 
-    isSelected: Boolean, 
-    modifier: Modifier = Modifier, 
-    onClick: () -> Unit
-) {
-    val color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray
-    val bgColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent
-    
-    OutlinedButton(
-        onClick = onClick,
-        modifier = modifier,
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
-        border = androidx.compose.foundation.BorderStroke(if (isSelected) 2.dp else 1.dp, color),
-        colors = ButtonDefaults.outlinedButtonColors(containerColor = bgColor, contentColor = color)
-    ) {
-        Text(label, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal)
+fun StatItem(value: String, label: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = value,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            color = Color.Gray
+        )
     }
 }
+

@@ -2,6 +2,7 @@ package com.example.logisticareparto.data.repository
 
 import com.example.logisticareparto.data.models.Client
 import com.example.logisticareparto.data.models.DeliveryRoute
+import com.example.logisticareparto.data.models.RouteStats
 import com.example.logisticareparto.data.models.RouteStop
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -138,6 +139,39 @@ class RouteRepository(
                 .await()
 
             Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getDriverStats(): Result<RouteStats> {
+        return try {
+            val currentUser = auth.currentUser
+                ?: return Result.failure(IllegalStateException("Debe iniciar sesion"))
+
+            val snapshot = db.collection("routes")
+                .whereEqualTo("driverId", currentUser.uid)
+                .get()
+                .await()
+
+            val allRoutes = snapshot.documents.mapNotNull { it.toDeliveryRoute() }
+            val finishedRoutes = allRoutes.filter { it.status == "finished" }
+
+            val totalRoutes = allRoutes.size
+            val totalFinishedRoutes = finishedRoutes.size
+            val totalStops = allRoutes.sumOf { it.stops.size }
+            val totalClientsVisited = finishedRoutes.sumOf { route ->
+                route.stops.count { it.status == "visited" }
+            }
+
+            Result.success(
+                RouteStats(
+                    totalRoutes = totalRoutes,
+                    totalFinishedRoutes = totalFinishedRoutes,
+                    totalClientsVisited = totalClientsVisited,
+                    totalStops = totalStops
+                )
+            )
         } catch (e: Exception) {
             Result.failure(e)
         }

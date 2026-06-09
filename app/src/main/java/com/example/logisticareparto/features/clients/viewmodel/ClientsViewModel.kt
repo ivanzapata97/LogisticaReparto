@@ -13,6 +13,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.logisticareparto.BuildConfig
 import com.example.logisticareparto.data.models.Client
 import com.example.logisticareparto.data.models.DeliveryRoute
+import com.example.logisticareparto.data.models.RouteStats
 import com.example.logisticareparto.data.models.RouteStop
 import com.example.logisticareparto.data.repository.ClientRepository
 import com.example.logisticareparto.data.repository.RouteRepository
@@ -79,6 +80,21 @@ class ClientsViewModel(
 
     var currentLanguage by mutableStateOf(userPrefs.getLanguage())
         private set
+
+    var driverStats by mutableStateOf<RouteStats?>(null)
+        private set
+
+    fun loadDriverStats() {
+        viewModelScope.launch {
+            routeRepository.getDriverStats()
+                .onSuccess { stats ->
+                    driverStats = stats
+                }
+                .onFailure {
+                    driverStats = null
+                }
+        }
+    }
 
     fun setLanguage(langCode: String) {
         userPrefs.saveLanguage(langCode)

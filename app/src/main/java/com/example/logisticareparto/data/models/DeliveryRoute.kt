@@ -1,5 +1,12 @@
 package com.example.logisticareparto.data.models
 
+data class RouteStats(
+    val totalRoutes: Int = 0,
+    val totalFinishedRoutes: Int = 0,
+    val totalClientsVisited: Int = 0,
+    val totalStops: Int = 0
+)
+
 data class RouteStop(
     val clientId: String = "",
     val clientName: String = "",

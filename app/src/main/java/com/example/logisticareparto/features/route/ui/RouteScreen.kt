@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
 import com.example.logisticareparto.BuildConfig
+import com.example.logisticareparto.notifications.RouteNotificationHelper
 import com.example.logisticareparto.R
 import com.example.logisticareparto.data.models.Client
 import com.example.logisticareparto.data.models.RouteStop
@@ -69,7 +70,6 @@ import com.example.logisticareparto.features.clients.viewmodel.ActiveRouteUiStat
 import com.example.logisticareparto.features.clients.viewmodel.ClientsViewModel
 import com.example.logisticareparto.features.clients.viewmodel.RouteSaveUiState
 import com.example.logisticareparto.features.clients.viewmodel.RouteUiState
-import com.example.logisticareparto.notifications.RouteNotificationHelper
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -240,14 +240,7 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                             }
                         },
                         onClick = {
-                            viewModel.startCurrentRoute { truckId ->
-                                RouteNotificationHelper.sendNotification(
-                                    context = context,
-                                    notificationId = 1001,
-                                    title = context.getString(R.string.notification_route_started_title),
-                                    message = context.getString(R.string.notification_route_started_msg, truckId)
-                                )
-                            }
+                            viewModel.startCurrentRoute()
                         }
                     )
                 }
