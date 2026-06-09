@@ -23,6 +23,9 @@ import com.example.logisticareparto.features.profile.ui.ProfileScreen
 import com.example.logisticareparto.features.route.ui.RouteScreen
 import com.example.logisticareparto.features.search.ui.SearchScreen
 
+import androidx.compose.ui.res.stringResource
+import com.example.logisticareparto.R
+
 @Composable
 fun MainScreen(
     authViewModel: AuthViewModel, 
@@ -34,7 +37,13 @@ fun MainScreen(
     val terracottaRed = MaterialTheme.colorScheme.secondary
 
     var selectedItem by remember { mutableIntStateOf(0) }
-    val items = listOf("Inicio", "Buscar", "Ruta", "Perfil")
+    
+    val navHome = stringResource(R.string.nav_home)
+    val navSearch = stringResource(R.string.nav_search)
+    val navRoute = stringResource(R.string.nav_route)
+    val navProfile = stringResource(R.string.nav_profile)
+    
+    val items = listOf(navHome, navSearch, navRoute, navProfile)
     val icons = listOf(Icons.Default.Assignment, Icons.Default.Search, Icons.Default.Route, Icons.Default.Person)
 
     Scaffold(

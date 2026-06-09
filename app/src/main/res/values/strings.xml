@@ -1,3 +1,114 @@
 <resources>
-    <string name="app_name">LogisticaReparto</string>
+    <string name="app_name">Logistica Reparto</string>
+
+    <!-- Login & Register -->
+    <string name="login_title">Gestión de reparto</string>
+    <string name="login_subtitle">Ingresar</string>
+    <string name="register_subtitle">Completa tus datos</string>
+    <string name="label_user">Usuario o email</string>
+    <string name="label_user_legajo">Usuario o Legajo</string>
+    <string name="label_password">Contraseña</string>
+    <string name="label_confirm_password">Confirmar Contraseña</string>
+    <string name="btn_login">Ingresar</string>
+    <string name="btn_create_account">Crear cuenta</string>
+    <string name="link_register">¿No tenés cuenta? Registrate</string>
+    <string name="link_already_have_account">Ya tengo cuenta. Ingresar</string>
+
+    <!-- Errors & Dialogs -->
+    <string name="error_login_title">Error de Ingreso</string>
+    <string name="error_register_title">Error de Registro</string>
+    <string name="error_invalid_credentials">El usuario o contraseña son incorrectos.</string>
+    <string name="error_connection">No se pudo iniciar sesión. Revisa la conexión</string>
+    <string name="error_passwords_mismatch">Las contraseñas no coinciden</string>
+    <string name="btn_accept">Aceptar</string>
+
+    <!-- Clients -->
+    <string name="title_clients">Clientes</string>
+    <string name="desc_add_client">Agregar Cliente</string>
+    <string name="clients_title">Mis Clientes</string>
+    <string name="search_placeholder">Nombre o direccion...</string>
+    <string name="no_clients">No hay clientes registrados</string>
+    <string name="no_clients_truck_today">No hay clientes para este camión hoy</string>
+
+    <!-- Route Flow -->
+    <string name="route_active_title">Ya hay una ruta iniciada</string>
+    <string name="route_active_subtitle">Marca visitas o finalizala antes de armar otra</string>
+    <string name="btn_go_to_route">Ir a ruta</string>
+    <string name="route_draft_title">Hoja de ruta en progreso</string>
+    <string name="route_draft_subtitle">%1$d parada(s) listas para ordenar</string>
+    <string name="btn_view_route">Ver ruta</string>
+    <string name="status_route_in_progress">Ruta en curso</string>
+    <string name="status_already_in_route">Ya esta en ruta</string>
+    <string name="btn_add_to_route">Sumar a ruta</string>
+
+    <!-- Profile & Settings -->
+    <string name="title_profile">Mi Perfil</string>
+    <string name="label_user_placeholder">Usuario</string>
+    <string name="label_assigned_truck">Camión Asignado: %1$d</string>
+    <string name="btn_change_truck">Cambiar Camión</string>
+    <string name="btn_logout">Cerrar Sesión</string>
+    <string name="label_app_language">Idioma de la aplicación</string>
+    <string name="lang_es">Español</string>
+    <string name="lang_en">Inglés</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Inicio</string>
+    <string name="nav_search">Buscar</string>
+    <string name="nav_route">Ruta</string>
+    <string name="nav_profile">Perfil</string>
+
+    <!-- Client Detail -->
+    <string name="title_client_detail">Detalle del Cliente</string>
+    <string name="label_client_not_found">Cliente no encontrado</string>
+    <string name="label_general_info">Información General</string>
+    <string name="label_address">Dirección</string>
+    <string name="label_contact">Contacto</string>
+    <string name="label_cuil">CUIL</string>
+    <string name="label_delivery_zone">Reparto</string>
+    <string name="label_delivery_zone_value">Zona del %1$d</string>
+    <string name="label_visit_days">Días de Visita</string>
+    <string name="label_attention_status">Estado de Atención</string>
+    <string name="btn_configure_client">Configurar Cliente</string>
+    <string name="label_not_specified">No especificado</string>
+
+    <!-- Schedule Status -->
+    <string name="status_open_24h">Abierto 24hs</string>
+    <string name="status_open_now">Abierto ahora (Cierra %1$s)</string>
+    <string name="status_closed_now">Cerrado ahora (Abre %1$s)</string>
+    <string name="status_schedule_range">Horario: %1$s - %2$s</string>
+
+    <!-- Route Screen -->
+    <string name="title_route_setup">Armar Ruta Dinámica</string>
+    <string name="title_active_route">Ruta en curso</string>
+    <string name="label_detected_clients">Clientes Detectados (%1$d)</string>
+    <string name="label_route_stops">Paradas de la ruta (%1$d)</string>
+    <string name="label_visited_summary">%1$d de %2$d visita(s) completadas</string>
+    <string name="label_visited_header">Visitados</string>
+    <string name="btn_start_route">Iniciar Ruta</string>
+    <string name="btn_finish_route">Finalizar Ruta</string>
+    <string name="btn_mark_visited">Marcar visita</string>
+    <string name="btn_visited">Visitado</string>
+    <string name="btn_view_map">Ver mapa</string>
+    <string name="btn_scan_sheet">Escanear planilla</string>
+    <string name="btn_import_gallery">Importar desde galería</string>
+    <string name="text_processing_route">Procesando ruta...</string>
+    <string name="text_processing_desc">Enseguida vas a poder seguir trabajando</string>
+    <string name="text_no_route_yet">Todavía no hay una hoja de ruta</string>
+    <string name="text_no_route_desc">Puedes armarla desde Buscar o importarla con una planilla</string>
+    <string name="text_reset_scan">Borrar estos resultados y volver a escanear</string>
+    <string name="text_reset_draft">Limpiar borrador y empezar de cero</string>
+    <string name="dialog_no_coords_title">Sin coordenadas</string>
+    <string name="dialog_no_coords_text">Los clientes de esta ruta no tienen ubicación guardada para mostrar en el mapa.</string>
+    <string name="msg_route_started_title">Ruta iniciada</string>
+    <string name="msg_route_started_text">Ruta comenzada con éxito</string>
+    <string name="msg_route_error_title">No pudimos completar la acción</string>
+    <string name="label_map_stops">Mapa de paradas</string>
+    <string name="label_map_active">Mapa de ruta activa</string>
+    <string name="label_map_points">%1$d punto(s) con ubicación</string>
+    <string name="notification_route_started_title">Ruta iniciada</string>
+    <string name="notification_route_started_msg">El camión %1$d inició ruta, tu pedido está en camino.</string>
+    <string name="notification_next_stop_title">Siguiente entrega</string>
+    <string name="notification_next_stop_msg">Eres el siguiente cliente, el camión %1$d estará pronto.</string>
+    <string name="notification_closing_title">Alerta de Cierre</string>
+    <string name="notification_closing_msg">El cliente %1$s está próximo a cerrar (a las %2$s).</string>
 </resources>

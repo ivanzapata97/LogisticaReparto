@@ -3,6 +3,14 @@ package com.example.logisticareparto.data.models
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
+sealed class ScheduleState {
+    object Open24h : ScheduleState()
+    data class OpenNow(val closeTime: String) : ScheduleState()
+    data class ClosedNow(val openTime: String) : ScheduleState()
+    object NotSpecified : ScheduleState()
+    data class Range(val openTime: String, val closeTime: String) : ScheduleState()
+}
+
 data class Client(
     val id: String = "",
     val codigoCliente: String = "",
@@ -19,9 +27,9 @@ data class Client(
     val longitud: Double = 0.0,
     val imagenUrl: String = ""
 ) {
-    fun getEstadoHorario(): Pair<String, Boolean> {
-        if (es24) return Pair("Abierto 24hs", true)
-        if (apertura.isEmpty() || cierre.isEmpty()) return Pair("Horario no especificado", false)
+    fun getScheduleState(): ScheduleState {
+        if (es24) return ScheduleState.Open24h
+        if (apertura.isEmpty() || cierre.isEmpty()) return ScheduleState.NotSpecified
 
         return try {
             val formatter = DateTimeFormatter.ofPattern("HH:mm")
@@ -36,12 +44,24 @@ data class Client(
             }
 
             if (estaAbierto) {
-                Pair("Abierto ahora (Cierra $cierre)", true)
+                ScheduleState.OpenNow(cierre)
             } else {
-                Pair("Cerrado ahora (Abre $apertura)", false)
+                ScheduleState.ClosedNow(apertura)
             }
         } catch (e: Exception) {
-            Pair("Horario: $apertura - $cierre", false)
+            ScheduleState.Range(apertura, cierre)
+        }
+    }
+
+    @Deprecated("Use getScheduleState instead")
+    fun getEstadoHorario(): Pair<String, Boolean> {
+        val state = getScheduleState()
+        return when (state) {
+            is ScheduleState.Open24h -> Pair("Abierto 24hs", true)
+            is ScheduleState.OpenNow -> Pair("Abierto ahora (Cierra ${state.closeTime})", true)
+            is ScheduleState.ClosedNow -> Pair("Cerrado ahora (Abre ${state.openTime})", false)
+            is ScheduleState.NotSpecified -> Pair("Horario no especificado", false)
+            is ScheduleState.Range -> Pair("Horario: ${state.openTime} - ${state.closeTime}", false)
         }
     }
 }

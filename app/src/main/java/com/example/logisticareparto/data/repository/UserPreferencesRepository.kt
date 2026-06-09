@@ -17,4 +17,12 @@ class UserPreferencesRepository(context: Context) {
     fun clearSelectedTruck() {
         prefs.edit().remove("selected_truck").apply()
     }
+
+    fun saveLanguage(langCode: String) {
+        prefs.edit().putString("app_language", langCode).apply()
+    }
+
+    fun getLanguage(): String {
+        return prefs.getString("app_language", "es") ?: "es"
+    }
 }

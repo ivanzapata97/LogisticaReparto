@@ -1,14 +1,11 @@
 package com.example.logisticareparto.features.auth.ui
 
-import com.example.logisticareparto.features.auth.viewmodel.AuthUiState
-import com.example.logisticareparto.features.auth.viewmodel.AuthViewModel
-
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.*
@@ -16,10 +13,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.logisticareparto.R
+import com.example.logisticareparto.features.auth.viewmodel.AuthUiState
+import com.example.logisticareparto.features.auth.viewmodel.AuthViewModel
 
 @Composable
 fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNavigateToLogin: () -> Unit) {
@@ -33,6 +35,8 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
 
     var showDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+
+    val passwordsMismatchError = stringResource(R.string.error_passwords_mismatch)
 
     LaunchedEffect(uiState) {
         if (uiState is AuthUiState.Error) {
@@ -53,19 +57,18 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Icono Rojo de Camión
-            Surface(
-                modifier = Modifier.size(80.dp),
+            // Logo de la App
+            Card(
+                modifier = Modifier.size(100.dp),
                 shape = RoundedCornerShape(20.dp),
-                color = terracottaRed,
-                shadowElevation = 4.dp
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Default.LocalShipping,
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_app_logo),
                         contentDescription = "Logo",
-                        tint = Color.White,
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.fillMaxSize().padding(6.dp)
                     )
                 }
             }
@@ -73,7 +76,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Gestión de reparto",
+                text = stringResource(R.string.login_title),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1A1C1E)
@@ -81,20 +84,20 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
             )
 
             Text(
-                text = "Completa tus datos",
+                text = stringResource(R.string.register_subtitle),
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = Color.Gray,
                     fontSize = 16.sp
                 )
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // Campo Usuario/Email
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                placeholder = { Text("Usuario o Legajo") },
+                placeholder = { Text(stringResource(R.string.label_user_legajo)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 leadingIcon = {
@@ -120,7 +123,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                placeholder = { Text("Contraseña") },
+                placeholder = { Text(stringResource(R.string.label_password)) },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
@@ -147,7 +150,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                placeholder = { Text("Confirmar Contraseña") },
+                placeholder = { Text(stringResource(R.string.label_confirm_password)) },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
@@ -176,7 +179,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
                     if (password == confirmPassword) {
                         viewModel.signUp(email, password)
                     } else {
-                        errorMessage = "Las contraseñas no coinciden"
+                        errorMessage = passwordsMismatchError
                         showDialog = true
                     }
                 },
@@ -194,19 +197,19 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                 } else {
                     Text(
-                        "Crear Cuenta",
+                        stringResource(R.string.btn_create_account),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // Texto Volver al Login
             TextButton(onClick = { onNavigateToLogin() }) {
                 Text(
-                    text = "Ya tengo cuenta. Ingresar",
+                    text = stringResource(R.string.link_already_have_account),
                     color = terracottaRed,
                     fontWeight = FontWeight.Bold
                 )
@@ -220,7 +223,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
                 showDialog = false
                 viewModel.resetState()
             },
-            title = { Text(text = "Error de Registro") },
+            title = { Text(text = stringResource(R.string.error_register_title)) },
             text = { Text(text = errorMessage) },
             confirmButton = {
                 TextButton(
@@ -229,7 +232,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
                         viewModel.resetState()
                     }
                 ) {
-                    Text("Aceptar")
+                    Text(stringResource(R.string.btn_accept))
                 }
             }
         )

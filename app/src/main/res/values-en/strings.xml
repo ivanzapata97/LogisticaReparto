@@ -1,0 +1,114 @@
+<resources>
+    <string name="app_name">Logistica Reparto</string>
+
+    <!-- Login & Register -->
+    <string name="login_title">Delivery Management</string>
+    <string name="login_subtitle">Sign In</string>
+    <string name="register_subtitle">Complete your details</string>
+    <string name="label_user">Username or email</string>
+    <string name="label_user_legajo">Username or ID</string>
+    <string name="label_password">Password</string>
+    <string name="label_confirm_password">Confirm Password</string>
+    <string name="btn_login">Login</string>
+    <string name="btn_create_account">Create Account</string>
+    <string name="link_register">Don\'t have an account? Sign up</string>
+    <string name="link_already_have_account">Already have an account? Log in</string>
+
+    <!-- Errors & Dialogs -->
+    <string name="error_login_title">Login Error</string>
+    <string name="error_register_title">Registration Error</string>
+    <string name="error_invalid_credentials">Incorrect username or password.</string>
+    <string name="error_connection">Could not log in. Check your connection</string>
+    <string name="error_passwords_mismatch">Passwords do not match</string>
+    <string name="btn_accept">Accept</string>
+
+    <!-- Clients -->
+    <string name="title_clients">Clients</string>
+    <string name="desc_add_client">Add Client</string>
+    <string name="clients_title">My Clients</string>
+    <string name="search_placeholder">Name or address...</string>
+    <string name="no_clients">No registered clients</string>
+    <string name="no_clients_truck_today">No clients for this truck today</string>
+
+    <!-- Route Flow -->
+    <string name="route_active_title">An active route already exists</string>
+    <string name="route_active_subtitle">Complete or finish the current route before starting a new one</string>
+    <string name="btn_go_to_route">Go to route</string>
+    <string name="route_draft_title">Route draft in progress</string>
+    <string name="route_draft_subtitle">%1$d stop(s) ready to order</string>
+    <string name="btn_view_route">View route</string>
+    <string name="status_route_in_progress">Route in progress</string>
+    <string name="status_already_in_route">Already in route</string>
+    <string name="btn_add_to_route">Add to route</string>
+
+    <!-- Profile & Settings -->
+    <string name="title_profile">My Profile</string>
+    <string name="label_user_placeholder">User</string>
+    <string name="label_assigned_truck">Assigned Truck: %1$d</string>
+    <string name="btn_change_truck">Change Truck</string>
+    <string name="btn_logout">Logout</string>
+    <string name="label_app_language">App Language</string>
+    <string name="lang_es">Spanish</string>
+    <string name="lang_en">English</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_route">Route</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Client Detail -->
+    <string name="title_client_detail">Client Detail</string>
+    <string name="label_client_not_found">Client not found</string>
+    <string name="label_general_info">General Information</string>
+    <string name="label_address">Address</string>
+    <string name="label_contact">Contact</string>
+    <string name="label_cuil">CUIL</string>
+    <string name="label_delivery_zone">Delivery</string>
+    <string name="label_delivery_zone_value">Zone %1$d</string>
+    <string name="label_visit_days">Visit Days</string>
+    <string name="label_attention_status">Attention Status</string>
+    <string name="btn_configure_client">Configure Client</string>
+    <string name="label_not_specified">Not specified</string>
+
+    <!-- Schedule Status -->
+    <string name="status_open_24h">Open 24h</string>
+    <string name="status_open_now">Open now (Closes %1$s)</string>
+    <string name="status_closed_now">Closed now (Opens %1$s)</string>
+    <string name="status_schedule_range">Schedule: %1$s - %2$s</string>
+
+    <!-- Route Screen -->
+    <string name="title_route_setup">Dynamic Route Setup</string>
+    <string name="title_active_route">Route in progress</string>
+    <string name="label_detected_clients">Detected Clients (%1$d)</string>
+    <string name="label_route_stops">Route stops (%1$d)</string>
+    <string name="label_visited_summary">%1$d of %2$d visit(s) completed</string>
+    <string name="label_visited_header">Visited</string>
+    <string name="btn_start_route">Start Route</string>
+    <string name="btn_finish_route">Finish Route</string>
+    <string name="btn_mark_visited">Mark visit</string>
+    <string name="btn_visited">Visited</string>
+    <string name="btn_view_map">View map</string>
+    <string name="btn_scan_sheet">Scan sheet</string>
+    <string name="btn_import_gallery">Import from gallery</string>
+    <string name="text_processing_route">Processing route...</string>
+    <string name="text_processing_desc">You will be able to continue working shortly</string>
+    <string name="text_no_route_yet">No route draft yet</string>
+    <string name="text_no_route_desc">You can build it from Search or import it with a sheet</string>
+    <string name="text_reset_scan">Clear these results and scan again</string>
+    <string name="text_reset_draft">Clear draft and start from scratch</string>
+    <string name="dialog_no_coords_title">No coordinates</string>
+    <string name="dialog_no_coords_text">The clients on this route do not have a saved location to display on the map.</string>
+    <string name="msg_route_started_title">Route started</string>
+    <string name="msg_route_started_text">Route started successfully</string>
+    <string name="msg_route_error_title">We could not complete the action</string>
+    <string name="label_map_stops">Stop map</string>
+    <string name="label_map_active">Active route map</string>
+    <string name="label_map_points">%1$d point(s) with location</string>
+    <string name="notification_route_started_title">Route started</string>
+    <string name="notification_route_started_msg">Truck %1$d started route, your order is on the way.</string>
+    <string name="notification_next_stop_title">Next delivery</string>
+    <string name="notification_next_stop_msg">You are the next client, truck %1$d will be there soon.</string>
+    <string name="notification_closing_title">Closing Alert</string>
+    <string name="notification_closing_msg">Client %1$s is about to close (at %2$s).</string>
+</resources>

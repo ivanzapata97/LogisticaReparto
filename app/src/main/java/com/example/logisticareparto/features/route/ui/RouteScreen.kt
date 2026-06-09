@@ -12,6 +12,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,14 +26,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.*
@@ -45,16 +47,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
 import com.example.logisticareparto.BuildConfig
+import com.example.logisticareparto.R
 import com.example.logisticareparto.data.models.Client
 import com.example.logisticareparto.data.models.RouteStop
 import com.example.logisticareparto.features.clients.ui.ClientItem
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import com.example.logisticareparto.features.clients.viewmodel.ClientsUiState
 import com.example.logisticareparto.features.clients.viewmodel.ActiveRouteUiState
 import com.example.logisticareparto.features.clients.viewmodel.ClientsViewModel
 import com.example.logisticareparto.features.clients.viewmodel.RouteSaveUiState
@@ -86,7 +96,6 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
     val routeState = viewModel.routeUiState
     val routeSaveState = viewModel.routeSaveUiState
     val routeDraft = viewModel.routeDraft
-    val routeDraftSource = viewModel.routeDraftSource
     val activeRouteState = viewModel.activeRouteUiState
     var mapPresentation by remember { mutableStateOf<MapPresentation?>(null) }
 
@@ -153,11 +162,11 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
     if (routeSaveState is RouteSaveUiState.Success) {
         AlertDialog(
             onDismissRequest = viewModel::clearRouteSaveState,
-            title = { Text("Ruta iniciada") },
-            text = { Text("Ruta comenzada con exito") },
+            title = { Text(stringResource(R.string.msg_route_started_title)) },
+            text = { Text(stringResource(R.string.msg_route_started_text)) },
             confirmButton = {
                 TextButton(onClick = viewModel::clearRouteSaveState) {
-                    Text("Aceptar")
+                    Text(stringResource(R.string.btn_accept))
                 }
             }
         )
@@ -166,11 +175,11 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
     if (routeSaveState is RouteSaveUiState.Error) {
         AlertDialog(
             onDismissRequest = viewModel::clearRouteSaveState,
-            title = { Text("No pudimos completar la accion") },
+            title = { Text(stringResource(R.string.msg_route_error_title)) },
             text = { Text(routeSaveState.message) },
             confirmButton = {
                 TextButton(onClick = viewModel::clearRouteSaveState) {
-                    Text("Aceptar")
+                    Text(stringResource(R.string.btn_accept))
                 }
             }
         )
@@ -182,8 +191,8 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                 title = {
                     Text(
                         when {
-                            activeRouteState is ActiveRouteUiState.Success -> "Ruta en curso"
-                            else -> "Armar Ruta Dinamica"
+                            activeRouteState is ActiveRouteUiState.Success -> stringResource(R.string.title_active_route)
+                            else -> stringResource(R.string.title_route_setup)
                         },
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -194,7 +203,7 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                         IconButton(onClick = viewModel::resetRouteState) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
-                                contentDescription = "Limpiar todo",
+                                contentDescription = stringResource(R.string.text_reset_draft),
                                 tint = Color.White
                             )
                         }
@@ -207,7 +216,7 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
             when {
                 activeRouteState is ActiveRouteUiState.Success -> {
                     RouteBottomBar(
-                        label = "Finalizar Ruta",
+                        label = stringResource(R.string.btn_finish_route),
                         containerColor = Color(0xFF212121),
                         onClick = viewModel::finishActiveRoute
                     )
@@ -215,7 +224,7 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
 
                 routeDraft.isNotEmpty() -> {
                     RouteBottomBar(
-                        label = "Iniciar Ruta",
+                        label = stringResource(R.string.btn_start_route),
                         containerColor = coralRed,
                         contentColor = Color.White,
                         textSize = 18.sp,
@@ -224,8 +233,8 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                             val clientsWithCoordinates = routeDraft.filter(::hasValidCoordinates)
                             if (clientsWithCoordinates.isNotEmpty()) {
                                 mapPresentation = MapPresentation(
-                                    title = "Mapa de paradas",
-                                    subtitle = "${clientsWithCoordinates.size} punto(s) con ubicacion",
+                                    title = context.getString(R.string.label_map_stops),
+                                    subtitle = context.getString(R.string.label_map_points, clientsWithCoordinates.size),
                                     clients = clientsWithCoordinates
                                 )
                             }
@@ -235,8 +244,8 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                                 RouteNotificationHelper.sendNotification(
                                     context = context,
                                     notificationId = 1001,
-                                    title = "Ruta iniciada",
-                                    message = "El camion $truckId inicio ruta, tu pedido esta en camino."
+                                    title = context.getString(R.string.notification_route_started_title),
+                                    message = context.getString(R.string.notification_route_started_msg, truckId)
                                 )
                             }
                         }
@@ -264,8 +273,8 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                     stopToClient = viewModel::getRouteStopClient,
                     onOpenMap = { clients ->
                         mapPresentation = MapPresentation(
-                            title = "Mapa de ruta activa",
-                            subtitle = "${clients.size} punto(s) con ubicacion",
+                            title = context.getString(R.string.label_map_active),
+                            subtitle = context.getString(R.string.label_map_points, clients.size),
                             clients = clients
                         )
                     },
@@ -274,35 +283,59 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                             RouteNotificationHelper.sendNotification(
                                 context = context,
                                 notificationId = 1002 + nextStop.order,
-                                title = "Siguiente entrega",
-                                message = "Eres el siguiente cliente, el camion $truckId estara pronto."
+                                title = context.getString(R.string.notification_next_stop_title),
+                                message = context.getString(R.string.notification_next_stop_msg, truckId)
                             )
                         }
                     }
                 )
+                
+                // Efecto para monitorear cierres proximos
+                LaunchedEffect(activeRouteState) {
+                    if (activeRouteState is ActiveRouteUiState.Success) {
+                        val route = activeRouteState.route
+                        val allClients = (viewModel.uiState as? ClientsUiState.Success)?.clients ?: emptyList()
+                        
+                        // Solo revisamos si hay paradas pendientes
+                        val pendingStops = route.stops.filter { !it.isVisited }
+                        if (pendingStops.isNotEmpty()) {
+                            val now = LocalTime.now()
+                            val formatter = DateTimeFormatter.ofPattern("HH:mm")
+                            
+                            pendingStops.forEach { stop ->
+                                val client = allClients.find { it.id == stop.clientId }
+                                if (client != null && !client.es24 && client.cierre.isNotEmpty()) {
+                                    try {
+                                        val closeTime = LocalTime.parse(client.cierre, formatter)
+                                        val diff = java.time.Duration.between(now, closeTime).toMinutes()
+                                        
+                                        // Si falta media hora o menos para cerrar
+                                        if (diff in 1..30) {
+                                            RouteNotificationHelper.sendNotification(
+                                                context = context,
+                                                notificationId = 2000 + stop.order,
+                                                title = context.getString(R.string.notification_closing_title),
+                                                message = context.getString(R.string.notification_closing_msg, client.cliente, client.cierre)
+                                            )
+                                        }
+                                    } catch (_: Exception) {}
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             routeDraft.isNotEmpty() -> {
-                if (routeDraftSource == "escaneo") {
-                    ScannedRouteContent(
-                        modifier = Modifier.padding(padding),
-                        clients = routeDraft,
-                        redColor = coralRed,
-                        onClientClick = onClientClick,
-                        onReset = viewModel::resetRouteState
-                    )
-                } else {
-                    RouteDraftEditor(
-                        modifier = Modifier.padding(padding),
-                        routeDraft = routeDraft,
-                        redColor = coralRed,
-                        onClientClick = onClientClick,
-                        onMoveUp = viewModel::moveRouteStopUp,
-                        onMoveDown = viewModel::moveRouteStopDown,
-                        onRemove = viewModel::removeClientFromRoute,
-                        onReset = viewModel::resetRouteState
-                    )
-                }
+                UnifiedRouteDraftContent(
+                    modifier = Modifier.padding(padding),
+                    routeDraft = routeDraft,
+                    redColor = coralRed,
+                    onClientClick = onClientClick,
+                    onMove = viewModel::moveClientInRoute,
+                    onRemove = viewModel::removeClientFromRoute,
+                    onReset = viewModel::resetRouteState
+                )
             }
 
             activeRouteState is ActiveRouteUiState.Error -> {
@@ -336,16 +369,21 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
 }
 
 @Composable
-private fun ScannedRouteContent(
+private fun UnifiedRouteDraftContent(
     modifier: Modifier,
-    clients: List<Client>,
+    routeDraft: List<Client>,
     redColor: Color,
     onClientClick: (String) -> Unit,
+    onMove: (Int, Int) -> Unit,
+    onRemove: (String) -> Unit,
     onReset: () -> Unit
 ) {
+    val listState = rememberLazyListState()
+    var draggingItemIndex by remember { mutableStateOf<Int?>(null) }
+    var dragOffset by remember { mutableStateOf(0f) }
+
     Column(modifier = modifier.fillMaxSize()) {
-        val clientsWithCoordinates = clients.filter(::hasValidCoordinates)
-        // ... (map code unchanged)
+        val clientsWithCoordinates = routeDraft.filter(::hasValidCoordinates)
         if (clientsWithCoordinates.isNotEmpty()) {
             val firstClient = clientsWithCoordinates.first()
             val cameraPositionState = rememberCameraPositionState {
@@ -378,19 +416,93 @@ private fun ScannedRouteContent(
         }
 
         Text(
-            text = "Clientes Detectados (${clients.size})",
+            text = stringResource(R.string.label_route_stops, routeDraft.size),
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             fontWeight = FontWeight.Bold,
             color = Color.DarkGray
         )
 
         LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .weight(1f)
+                .pointerInput(routeDraft) {
+                    detectDragGesturesAfterLongPress(
+                        onDragStart = { offset ->
+                            listState.layoutInfo.visibleItemsInfo
+                                .firstOrNull { item ->
+                                    offset.y.toInt() in item.offset..(item.offset + item.size)
+                                }
+                                ?.let { item ->
+                                    if (item.index < routeDraft.size) {
+                                        draggingItemIndex = item.index
+                                    }
+                                }
+                        },
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            dragOffset += dragAmount.y
+
+                            val currentDraggingIndex = draggingItemIndex ?: return@detectDragGesturesAfterLongPress
+                            val currentItem = listState.layoutInfo.visibleItemsInfo.find { it.index == currentDraggingIndex } ?: return@detectDragGesturesAfterLongPress
+                            
+                            val draggingItemCenter = currentItem.offset + (currentItem.size / 2) + dragOffset
+
+                            val targetItem = listState.layoutInfo.visibleItemsInfo.find { item ->
+                                draggingItemCenter.toInt() in item.offset..(item.offset + item.size)
+                            }
+
+                            if (targetItem != null && targetItem.index != currentDraggingIndex && targetItem.index < routeDraft.size) {
+                                val oldOffset = currentItem.offset
+                                onMove(currentDraggingIndex, targetItem.index)
+                                draggingItemIndex = targetItem.index
+                                dragOffset += (oldOffset - targetItem.offset)
+                            }
+                        },
+                        onDragEnd = {
+                            draggingItemIndex = null
+                            dragOffset = 0f
+                        },
+                        onDragCancel = {
+                            draggingItemIndex = null
+                            dragOffset = 0f
+                        }
+                    )
+                },
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.weight(1f)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            itemsIndexed(clients, key = { _, client -> client.id }) { _, client ->
-                ClientItem(client = client, onClick = { onClientClick(client.id) })
+            itemsIndexed(routeDraft, key = { _, client -> client.id }) { index, client ->
+                val isDragging = index == draggingItemIndex
+                
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .zIndex(if (isDragging) 1f else 0f)
+                        .graphicsLayer {
+                            translationY = if (isDragging) dragOffset else 0f
+                            scaleX = if (isDragging) 1.05f else 1f
+                            scaleY = if (isDragging) 1.05f else 1f
+                            alpha = if (isDragging) 0.9f else 1f
+                        }
+                ) {
+                    ClientItem(
+                        client = client,
+                        onClick = { onClientClick(client.id) },
+                        actionContent = {
+                            Icon(
+                                imageVector = Icons.Default.DragHandle,
+                                contentDescription = null,
+                                tint = Color.LightGray,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            IconButton(onClick = { onRemove(client.id) }) {
+                                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.text_reset_draft), tint = redColor)
+                            }
+                        }
+                    )
+                }
             }
             
             item {
@@ -400,7 +512,7 @@ private fun ScannedRouteContent(
                 ) {
                     Icon(Icons.Default.Delete, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Borrar estos resultados y volver a escanear", color = Color.Gray)
+                    Text(stringResource(R.string.text_reset_scan), color = Color.Gray)
                 }
             }
         }
@@ -416,8 +528,8 @@ private fun LoadingRouteState(modifier: Modifier, redColor: Color) {
     ) {
         CircularProgressIndicator(color = redColor)
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Procesando ruta...", fontWeight = FontWeight.Bold)
-        Text("Enseguida vas a poder seguir trabajando", color = Color.Gray, fontSize = 12.sp)
+        Text(stringResource(R.string.text_processing_route), fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.text_processing_desc), color = Color.Gray, fontSize = 12.sp)
     }
 }
 
@@ -441,13 +553,13 @@ private fun EmptyRouteState(
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            "Todavia no hay una hoja de ruta",
+            stringResource(R.string.text_no_route_yet),
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium,
             color = Color.Gray
         )
         Text(
-            "Puedes armarla desde Buscar o importarla con una planilla",
+            stringResource(R.string.text_no_route_desc),
             fontSize = 14.sp,
             color = Color.LightGray,
             textAlign = TextAlign.Center,
@@ -463,7 +575,7 @@ private fun EmptyRouteState(
         ) {
             Icon(Icons.Default.CameraAlt, contentDescription = null)
             Spacer(modifier = Modifier.size(8.dp))
-            Text("Escanear planilla")
+            Text(stringResource(R.string.btn_scan_sheet))
         }
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedButton(
@@ -476,7 +588,7 @@ private fun EmptyRouteState(
         ) {
             Icon(Icons.Default.Image, contentDescription = null)
             Spacer(modifier = Modifier.size(8.dp))
-            Text("Importar desde galeria")
+            Text(stringResource(R.string.btn_import_gallery))
         }
     }
 }
@@ -495,66 +607,11 @@ private fun ErrorRouteState(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Ocurrio un error", fontWeight = FontWeight.Bold, color = redColor)
+        Text(stringResource(R.string.msg_route_error_title), fontWeight = FontWeight.Bold, color = redColor)
         Text(message, textAlign = TextAlign.Center)
         Spacer(modifier = Modifier.height(24.dp))
         Button(onClick = onRetry) {
-            Text("Reintentar")
-        }
-    }
-}
-
-@Composable
-private fun RouteDraftEditor(
-    modifier: Modifier,
-    routeDraft: List<Client>,
-    redColor: Color,
-    onClientClick: (String) -> Unit,
-    onMoveUp: (Int) -> Unit,
-    onMoveDown: (Int) -> Unit,
-    onRemove: (String) -> Unit,
-    onReset: () -> Unit
-) {
-    Column(modifier = modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            itemsIndexed(routeDraft, key = { _, client -> client.id }) { index, client ->
-                ClientItem(
-                    client = client,
-                    onClick = { onClientClick(client.id) },
-                    actionContent = {
-                        IconButton(
-                            onClick = { onMoveUp(index) },
-                            enabled = index > 0
-                        ) {
-                            Icon(Icons.Default.ArrowUpward, contentDescription = "Subir")
-                        }
-                        IconButton(
-                            onClick = { onMoveDown(index) },
-                            enabled = index < routeDraft.lastIndex
-                        ) {
-                            Icon(Icons.Default.ArrowDownward, contentDescription = "Bajar")
-                        }
-                        IconButton(onClick = { onRemove(client.id) }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Quitar", tint = redColor)
-                        }
-                    }
-                )
-            }
-            
-            item {
-                TextButton(
-                    onClick = onReset,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(Icons.Default.Delete, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Limpiar borrador y empezar de cero", color = Color.Gray)
-                }
-            }
+            Text(stringResource(R.string.btn_accept))
         }
     }
 }
@@ -574,6 +631,10 @@ private fun ActiveRouteContent(
     val clients = stops.map(stopToClient)
     val clientsWithCoordinates = clients.filter(::hasValidCoordinates)
     val visitedCount = stops.count { it.isVisited }
+    
+    val sortedStops = stops.sortedBy { it.order }
+    val pendingStops = sortedStops.filter { !it.isVisited }
+    val visitedStops = sortedStops.filter { it.isVisited }
 
     Column(modifier = modifier.fillMaxSize()) {
         Card(
@@ -590,13 +651,13 @@ private fun ActiveRouteContent(
                 ) {
                     Column {
                         Text(
-                            text = "Ruta en curso",
+                            text = stringResource(R.string.title_active_route),
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF1B5E20),
                             fontSize = 16.sp
                         )
                         Text(
-                            text = "$visitedCount de ${stops.size} visita(s) completadas - camion $selectedTruck",
+                            text = stringResource(R.string.label_visited_summary, visitedCount, stops.size),
                             color = Color.DarkGray,
                             fontSize = 13.sp
                         )
@@ -609,7 +670,7 @@ private fun ActiveRouteContent(
                     ) {
                         Icon(Icons.Default.Map, contentDescription = null)
                         Spacer(modifier = Modifier.size(6.dp))
-                        Text("Ver mapa")
+                        Text(stringResource(R.string.btn_view_map))
                     }
                 }
             }
@@ -622,13 +683,49 @@ private fun ActiveRouteContent(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            itemsIndexed(stops, key = { _, stop -> stop.clientId }) { _, stop ->
+            itemsIndexed(pendingStops, key = { _, stop -> stop.clientId }) { index, stop ->
                 val client = stopToClient(stop)
+                
+                val bgColor = when (index) {
+                    0 -> Color(0xFFFFF9C4)
+                    1 -> Color(0xFFE30613).copy(alpha = 0.1f)
+                    else -> Color.White
+                }
+                
                 ClientItem(
                     client = client,
                     onClick = { onClientClick(client.id) },
+                    containerColor = bgColor,
                     actionContent = {
-                        if (stop.isVisited) {
+                        Button(
+                            onClick = { onMarkVisited(stop) },
+                            colors = ButtonDefaults.buttonColors(containerColor = redColor)
+                        ) {
+                            Text(stringResource(R.string.btn_mark_visited))
+                        }
+                    }
+                )
+            }
+
+            if (visitedStops.isNotEmpty()) {
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.label_visited_header),
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Gray,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
+
+                items(visitedStops, key = { it.clientId }) { stop ->
+                    val client = stopToClient(stop)
+                    ClientItem(
+                        client = client,
+                        onClick = { onClientClick(client.id) },
+                        containerColor = Color(0xFFF5F5F5),
+                        actionContent = {
                             Button(
                                 onClick = {},
                                 enabled = false,
@@ -640,18 +737,11 @@ private fun ActiveRouteContent(
                             ) {
                                 Icon(Icons.Default.CheckCircle, contentDescription = null)
                                 Spacer(modifier = Modifier.size(6.dp))
-                                Text("Visitado")
-                            }
-                        } else {
-                            Button(
-                                onClick = { onMarkVisited(stop) },
-                                colors = ButtonDefaults.buttonColors(containerColor = redColor)
-                            ) {
-                                Text("Marcar visita")
+                                Text(stringResource(R.string.btn_visited))
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     }
@@ -659,11 +749,11 @@ private fun ActiveRouteContent(
     if (showNoCoordinatesInfo) {
         AlertDialog(
             onDismissRequest = { showNoCoordinatesInfo = false },
-            title = { Text("Sin coordenadas") },
-            text = { Text("Los clientes de esta ruta no tienen ubicacion guardada para mostrar en el mapa.") },
+            title = { Text(stringResource(R.string.dialog_no_coords_title)) },
+            text = { Text(stringResource(R.string.dialog_no_coords_text)) },
             confirmButton = {
                 TextButton(onClick = { showNoCoordinatesInfo = false }) {
-                    Text("Aceptar")
+                    Text(stringResource(R.string.btn_accept))
                 }
             }
         )
@@ -710,7 +800,7 @@ private fun RouteBottomBar(
                 ) {
                     Icon(
                         imageVector = trailingIcon,
-                        contentDescription = "Ver mapa",
+                        contentDescription = null,
                         tint = Color(0xFF4A4A4A)
                     )
                 }
@@ -785,7 +875,7 @@ private fun RouteMapScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.Clear, contentDescription = "Cerrar mapa", tint = Color.White)
+                        Icon(Icons.Default.Clear, contentDescription = null, tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = terracottaRed)

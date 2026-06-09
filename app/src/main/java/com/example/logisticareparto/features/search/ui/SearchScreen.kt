@@ -28,6 +28,9 @@ import com.example.logisticareparto.features.clients.ui.ClientItem
 import com.example.logisticareparto.features.clients.viewmodel.ClientsUiState
 import com.example.logisticareparto.features.clients.viewmodel.ClientsViewModel
 
+import androidx.compose.ui.res.stringResource
+import com.example.logisticareparto.R
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
@@ -46,12 +49,12 @@ fun SearchScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Clientes", fontWeight = FontWeight.Bold, color = Color.White) },
+                title = { Text(stringResource(R.string.title_clients), fontWeight = FontWeight.Bold, color = Color.White) },
                 actions = {
                     IconButton(onClick = onAddClientClick) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = "Agregar Cliente",
+                            contentDescription = stringResource(R.string.desc_add_client),
                             tint = Color.White
                         )
                     }
@@ -70,7 +73,7 @@ fun SearchScreen(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Nombre o direccion...") },
+                placeholder = { Text(stringResource(R.string.search_placeholder)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -93,12 +96,12 @@ fun SearchScreen(
                     ) {
                         Column {
                             Text(
-                                text = "Ya hay una ruta iniciada",
+                                text = stringResource(R.string.route_active_title),
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF1B5E20)
                             )
                             Text(
-                                text = "Marca visitas o finalizala antes de armar otra",
+                                text = stringResource(R.string.route_active_subtitle),
                                 color = Color.DarkGray
                             )
                         }
@@ -107,7 +110,7 @@ fun SearchScreen(
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
                         ) {
                             Icon(Icons.Default.Route, contentDescription = null)
-                            Text("Ir a ruta")
+                            Text(stringResource(R.string.btn_go_to_route))
                         }
                     }
                 }
@@ -125,12 +128,12 @@ fun SearchScreen(
                     ) {
                         Column {
                             Text(
-                                text = "Hoja de ruta en progreso",
+                                text = stringResource(R.string.route_draft_title),
                                 fontWeight = FontWeight.Bold,
                                 color = terracottaRed
                             )
                             Text(
-                                text = "$routeCount parada(s) listas para ordenar",
+                                text = stringResource(R.string.route_draft_subtitle, routeCount),
                                 color = Color.DarkGray
                             )
                         }
@@ -139,7 +142,7 @@ fun SearchScreen(
                             colors = ButtonDefaults.buttonColors(containerColor = coralRed)
                         ) {
                             Icon(Icons.Default.Route, contentDescription = null)
-                            Text("Ver ruta")
+                            Text(stringResource(R.string.btn_view_route))
                         }
                     }
                 }
@@ -172,14 +175,14 @@ fun SearchScreen(
                                         onClick = onOpenRouteClick,
                                         colors = ButtonDefaults.buttonColors(containerColor = terracottaRed)
                                     ) {
-                                        Text("Ruta en curso")
+                                        Text(stringResource(R.string.status_route_in_progress))
                                     }
                                 } else if (isInRoute) {
                                     Button(
                                         onClick = onOpenRouteClick,
                                         colors = ButtonDefaults.buttonColors(containerColor = terracottaRed)
                                     ) {
-                                        Text("Ya esta en ruta")
+                                        Text(stringResource(R.string.status_already_in_route))
                                     }
                                 } else if (routeCount > 0) {
                                     OutlinedButton(
@@ -187,7 +190,7 @@ fun SearchScreen(
                                         colors = ButtonDefaults.outlinedButtonColors(contentColor = coralRed),
                                         border = androidx.compose.foundation.BorderStroke(1.dp, coralRed)
                                     ) {
-                                        Text("Sumar a ruta")
+                                        Text(stringResource(R.string.btn_add_to_route))
                                     }
                                 }
                             }

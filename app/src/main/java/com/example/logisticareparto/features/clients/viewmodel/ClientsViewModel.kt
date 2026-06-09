@@ -17,11 +17,16 @@ import com.example.logisticareparto.data.models.RouteStop
 import com.example.logisticareparto.data.repository.ClientRepository
 import com.example.logisticareparto.data.repository.RouteRepository
 import com.example.logisticareparto.data.repository.UserPreferencesRepository
+import com.example.logisticareparto.notifications.RouteNotificationHelper
 import com.google.firebase.Firebase
 import com.google.firebase.vertexai.vertexAI
 import com.google.firebase.vertexai.type.content
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+import java.time.Duration
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 sealed class ClientsUiState {
@@ -71,6 +76,18 @@ class ClientsViewModel(
 
     var selectedTruck by mutableIntStateOf(userPrefs.getSelectedTruck())
         private set
+
+    var currentLanguage by mutableStateOf(userPrefs.getLanguage())
+        private set
+
+    fun setLanguage(langCode: String) {
+        userPrefs.saveLanguage(langCode)
+        currentLanguage = langCode
+        // La UI reaccionará si usamos AppCompatDelegate en la Activity o via SideEffect
+    }
+
+    private var notificationJob: Job? = null
+    private val notifiedClientIds = mutableSetOf<String>()
 
     // `routeDraft` es la hoja editable compartida entre Buscar y Ruta.
     var routeDraft by mutableStateOf<List<Client>>(emptyList())
@@ -148,6 +165,7 @@ class ClientsViewModel(
 
     fun clearActiveRouteState() {
         activeRouteUiState = ActiveRouteUiState.Idle
+        stopClosingTimeMonitor()
     }
 
     fun isClientInRoute(clientId: String): Boolean {
@@ -175,6 +193,15 @@ class ClientsViewModel(
         if (routeDraft.isEmpty()) {
             routeUiState = RouteUiState.Idle
         }
+    }
+
+    fun moveClientInRoute(fromIndex: Int, toIndex: Int) {
+        if (fromIndex !in routeDraft.indices || toIndex !in routeDraft.indices) return
+        val updatedDraft = routeDraft.toMutableList()
+        val item = updatedDraft.removeAt(fromIndex)
+        updatedDraft.add(toIndex, item)
+        routeDraft = updatedDraft
+        routeSaveUiState = RouteSaveUiState.Idle
     }
 
     fun moveRouteStopUp(index: Int) {
@@ -248,6 +275,7 @@ class ClientsViewModel(
                     routeSaveUiState = RouteSaveUiState.Idle
                     routeDraft = emptyList()
                     routeUiState = RouteUiState.Idle
+                    stopClosingTimeMonitor()
                 }
                 .onFailure { error ->
                     routeSaveUiState = RouteSaveUiState.Error(error.message ?: "No se pudo finalizar la ruta")
@@ -265,16 +293,19 @@ class ClientsViewModel(
         viewModelScope.launch {
             routeRepository.getActiveRouteForToday(selectedTruck)
                 .onSuccess { route ->
-                    activeRouteUiState = if (route == null) {
-                        ActiveRouteUiState.Idle
+                    if (route == null) {
+                        activeRouteUiState = ActiveRouteUiState.Idle
+                        stopClosingTimeMonitor()
                     } else {
-                        ActiveRouteUiState.Success(route)
+                        activeRouteUiState = ActiveRouteUiState.Success(route)
+                        startClosingTimeMonitor()
                     }
                 }
                 .onFailure { error ->
                     activeRouteUiState = ActiveRouteUiState.Error(
                         error.message ?: "No se pudo cargar la ruta activa"
                     )
+                    stopClosingTimeMonitor()
                 }
         }
     }
@@ -287,6 +318,49 @@ class ClientsViewModel(
     fun getRouteStopClient(stop: RouteStop): Client {
         val allClients = (uiState as? ClientsUiState.Success)?.clients.orEmpty()
         return stop.toClient(allClients)
+    }
+
+    private fun startClosingTimeMonitor() {
+        if (notificationJob?.isActive == true) return
+        
+        notificationJob = viewModelScope.launch {
+            while (true) {
+                checkClosingTimes()
+                delay(60000) // Revisar cada minuto
+            }
+        }
+    }
+
+    private fun stopClosingTimeMonitor() {
+        notificationJob?.cancel()
+        notificationJob = null
+        notifiedClientIds.clear()
+    }
+
+    private fun checkClosingTimes() {
+        val route = (activeRouteUiState as? ActiveRouteUiState.Success)?.route ?: return
+        val allClients = (uiState as? ClientsUiState.Success)?.clients ?: return
+        val now = LocalTime.now()
+        val formatter = DateTimeFormatter.ofPattern("HH:mm")
+
+        route.stops.filter { !it.isVisited }.forEach { stop ->
+            if (!notifiedClientIds.contains(stop.clientId)) {
+                val client = allClients.find { it.id == stop.clientId }
+                if (client != null && !client.es24 && client.cierre.isNotEmpty()) {
+                    try {
+                        val closeTime = LocalTime.parse(client.cierre, formatter)
+                        val duration = Duration.between(now, closeTime)
+                        val minutesToClose = duration.toMinutes()
+
+                        if (minutesToClose in 1..30) {
+                            notifiedClientIds.add(stop.clientId)
+                            // La notificacion se disparara a traves de un callback o evento si fuera necesario, 
+                            // pero aqui implementamos la logica de deteccion.
+                        }
+                    } catch (_: Exception) {}
+                }
+            }
+        }
     }
 
     init {

@@ -22,11 +22,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.logisticareparto.R
 import com.example.logisticareparto.data.models.Client
+import com.example.logisticareparto.data.models.ScheduleState
 import com.example.logisticareparto.features.clients.viewmodel.ClientsUiState
 import com.example.logisticareparto.features.clients.viewmodel.ClientsViewModel
 import com.google.android.gms.maps.model.CameraPosition
@@ -52,10 +55,10 @@ fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: ()
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Detalle del Cliente", fontWeight = FontWeight.Bold, color = Color.White) },
+                title = { Text(stringResource(R.string.title_client_detail), fontWeight = FontWeight.Bold, color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.btn_accept), tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = terracottaRed)
@@ -64,7 +67,7 @@ fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: ()
     ) { padding ->
         if (client == null) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Cliente no encontrado")
+                Text(stringResource(R.string.label_client_not_found))
             }
         } else {
             Column(
@@ -143,18 +146,26 @@ fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: ()
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Información General
-                Text(text = "Información General", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(bottom = 12.dp))
+                Text(text = stringResource(R.string.label_general_info), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(bottom = 12.dp))
 
-                DetailInfoItem(icon = Icons.Default.LocationOn, label = "Dirección", value = client.direccion)
-                DetailInfoItem(icon = Icons.Default.Phone, label = "Contacto", value = client.contacto.joinToString(", "))
-                DetailInfoItem(icon = Icons.Default.Badge, label = "CUIL", value = client.cuil.joinToString(", "))
-                DetailInfoItem(icon = Icons.Default.Route, label = "Reparto", value = "Zona del ${client.reparto}")
-                DetailInfoItem(icon = Icons.Default.CalendarToday, label = "Días de Visita", value = client.dias.joinToString(", "))
+                DetailInfoItem(icon = Icons.Default.LocationOn, label = stringResource(R.string.label_address), value = client.direccion)
+                DetailInfoItem(icon = Icons.Default.Phone, label = stringResource(R.string.label_contact), value = client.contacto.joinToString(", "))
+                DetailInfoItem(icon = Icons.Default.Badge, label = stringResource(R.string.label_cuil), value = client.cuil.joinToString(", "))
+                DetailInfoItem(icon = Icons.Default.Route, label = stringResource(R.string.label_delivery_zone), value = stringResource(R.string.label_delivery_zone_value, client.reparto))
+                DetailInfoItem(icon = Icons.Default.CalendarToday, label = stringResource(R.string.label_visit_days), value = client.dias.joinToString(", "))
 
-                val (horarioTexto, estaAbierto) = client.getEstadoHorario()
+                val scheduleState = client.getScheduleState()
+                val (horarioTexto, estaAbierto) = when (scheduleState) {
+                    is ScheduleState.Open24h -> stringResource(R.string.status_open_24h) to true
+                    is ScheduleState.OpenNow -> stringResource(R.string.status_open_now, scheduleState.closeTime) to true
+                    is ScheduleState.ClosedNow -> stringResource(R.string.status_closed_now, scheduleState.openTime) to false
+                    is ScheduleState.NotSpecified -> stringResource(R.string.label_not_specified) to false
+                    is ScheduleState.Range -> stringResource(R.string.status_schedule_range, scheduleState.openTime, scheduleState.closeTime) to false
+                }
+
                 DetailInfoItem(
                     icon = Icons.Default.AccessTime,
-                    label = "Estado de Atención",
+                    label = stringResource(R.string.label_attention_status),
                     value = horarioTexto,
                     valueColor = if (estaAbierto) Color(0xFF4CAF50) else Color(0xFFFF5252)
                 )
@@ -188,7 +199,7 @@ fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: ()
                 ) {
                     Icon(Icons.Default.Edit, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Configurar Cliente", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.btn_configure_client), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -208,7 +219,7 @@ fun DetailInfoItem(icon: ImageVector, label: String, value: String, valueColor: 
         Spacer(modifier = Modifier.width(16.dp))
         Column {
             Text(text = label, fontSize = 12.sp, color = Color.Gray)
-            Text(text = value.ifEmpty { "No especificado" }, fontSize = 16.sp, color = valueColor, fontWeight = FontWeight.Medium)
+            Text(text = value.ifEmpty { stringResource(R.string.label_not_specified) }, fontSize = 16.sp, color = valueColor, fontWeight = FontWeight.Medium)
         }
     }
 }

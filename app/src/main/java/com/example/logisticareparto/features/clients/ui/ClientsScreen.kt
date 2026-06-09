@@ -11,10 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.logisticareparto.R
 import com.example.logisticareparto.data.models.Client
+import com.example.logisticareparto.data.models.ScheduleState
 import com.example.logisticareparto.features.clients.viewmodel.ClientsUiState
 import com.example.logisticareparto.features.clients.viewmodel.ClientsViewModel
 
@@ -30,7 +33,7 @@ fun ClientsScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit, 
             CenterAlignedTopAppBar(
                 title = { 
                     Text(
-                        "Mis Clientes", 
+                        stringResource(R.string.clients_title), 
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     ) 
@@ -76,7 +79,7 @@ fun ClientsScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit, 
                     
                     if (filteredClients.isEmpty()) {
                         Text(
-                            text = "No hay clientes para este camión hoy",
+                            text = stringResource(R.string.no_clients_truck_today),
                             modifier = Modifier.align(Alignment.Center),
                             color = Color.Gray
                         )
@@ -101,13 +104,14 @@ fun ClientsScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit, 
 fun ClientItem(
     client: Client,
     onClick: () -> Unit,
+    containerColor: Color = Color.White,
     actionContent: (@Composable RowScope.() -> Unit)? = null
 ) {
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = containerColor)
     ) {
         Row(
             modifier = Modifier
@@ -135,9 +139,17 @@ fun ClientItem(
                     color = Color.Gray
                 )
 
-                val (horarioTexto, estaAbierto) = client.getEstadoHorario()
+                val scheduleState = client.getScheduleState()
+                val (horarioTexto, estaAbierto) = when (scheduleState) {
+                    is ScheduleState.Open24h -> stringResource(R.string.status_open_24h) to true
+                    is ScheduleState.OpenNow -> stringResource(R.string.status_open_now, scheduleState.closeTime) to true
+                    is ScheduleState.ClosedNow -> stringResource(R.string.status_closed_now, scheduleState.openTime) to false
+                    is ScheduleState.NotSpecified -> stringResource(R.string.label_not_specified) to false
+                    is ScheduleState.Range -> stringResource(R.string.status_schedule_range, scheduleState.openTime, scheduleState.closeTime) to false
+                }
+
                 Text(
-                    text = if (client.es24) "Abierto 24hs" else horarioTexto,
+                    text = horarioTexto,
                     fontSize = 12.sp,
                     color = if (estaAbierto) Color(0xFF4CAF50) else Color(0xFFFF5252),
                     fontWeight = FontWeight.Bold,
