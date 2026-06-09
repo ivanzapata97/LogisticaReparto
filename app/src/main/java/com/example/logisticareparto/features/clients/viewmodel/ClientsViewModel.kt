@@ -100,13 +100,13 @@ class ClientsViewModel(
     fun setLanguage(langCode: String) {
         userPrefs.saveLanguage(langCode)
         currentLanguage = langCode
-        // La UI reaccionará si usamos AppCompatDelegate en la Activity o via SideEffect
+        //la interfaz reacciona si usamos appCompatDelegate en la actividad o via SideEfecct
     }
 
     private var notificationJob: Job? = null
     private val notifiedClientIds = mutableSetOf<String>()
 
-    // `routeDraft` es la hoja editable compartida entre Buscar y Ruta.
+    // 'routeDraft' es la hoja editable compartida entre buscar y ruta.
     var routeDraft by mutableStateOf<List<Client>>(emptyList())
         private set
 
@@ -348,7 +348,7 @@ class ClientsViewModel(
         notificationJob = viewModelScope.launch {
             while (true) {
                 checkClosingTimes()
-                delay(60000) // Revisar cada minuto
+                delay(60000) // revisar cada minuto
             }
         }
     }
@@ -376,8 +376,7 @@ class ClientsViewModel(
 
                         if (minutesToClose in 1..30) {
                             notifiedClientIds.add(stop.clientId)
-                            // La notificacion se disparara a traves de un callback o evento si fuera necesario, 
-                            // pero aqui implementamos la logica de deteccion.
+                            // la notificacion se disparara a traves de un callback o evento si fuera necesario,
                         }
                     } catch (_: Exception) {}
                 }

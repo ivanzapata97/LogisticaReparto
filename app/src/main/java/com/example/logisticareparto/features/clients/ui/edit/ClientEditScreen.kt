@@ -34,7 +34,7 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
     val primaryColor = MaterialTheme.colorScheme.primary
     val context = LocalContext.current
     
-    // Mantenemos el cliente en un estado local para que no desaparezca al cargar
+    // dejamos guardado al cliente para que cuando recargue no se pierda
     var currentClient by remember { mutableStateOf<Client?>(null) }
 
     LaunchedEffect(uiState) {
@@ -44,7 +44,7 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
         }
     }
 
-    // Estado local para los campos editables (se inicializan cuando se carga el cliente)
+    // el estado inicial del cliente en forma local
     var editedCodigo by remember(currentClient?.id) { mutableStateOf(currentClient?.codigoCliente ?: "") }
     var editedNombre by remember(currentClient?.id) { mutableStateOf(currentClient?.cliente ?: "") }
     var editedDireccion by remember(currentClient?.id) { mutableStateOf(currentClient?.direccion ?: "") }
@@ -88,7 +88,7 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // seccion de la foto
+                //foto
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -130,7 +130,7 @@ fun ClientEditScreen(clientId: String, viewModel: ClientsViewModel, onBack: () -
                     }
                 }
 
-                // FORMULARIO DE EDICIÓN
+                // editar los datos del cliente
                 OutlinedTextField(
                     value = editedCodigo,
                     onValueChange = { editedCodigo = it },

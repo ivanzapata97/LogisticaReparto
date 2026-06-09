@@ -96,7 +96,6 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Campo Usuario/Email
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -149,7 +148,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Confirmar Contraseña
+            // confirmar Contraseña
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
@@ -176,7 +175,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Botón Crear Cuenta
+            // boton crear cuenta
             Button(
                 onClick = {
                     if (password == confirmPassword) {
@@ -209,7 +208,7 @@ fun RegisterScreen(viewModel: AuthViewModel, onRegisterSuccess: () -> Unit, onNa
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Texto Volver al Login
+            // volver al login
             TextButton(onClick = { onNavigateToLogin() }) {
                 Text(
                     text = stringResource(R.string.link_already_have_account),

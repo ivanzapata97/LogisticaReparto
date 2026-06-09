@@ -70,7 +70,7 @@ fun ClientCreateScreen(viewModel: ClientsViewModel, onBack: () -> Unit, onSucces
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // SECCIÓN FOTO
+            // aca va la foto
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -172,7 +172,7 @@ fun ClientCreateScreen(viewModel: ClientsViewModel, onBack: () -> Unit, onSucces
             Spacer(modifier = Modifier.height(12.dp))
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "Ej: Lunes, Miércoles, Viernes",
+                    text = "Ej: Lunes, Miercoles, Viernes",
                     fontSize = 12.sp,
                     color = Color.Gray,
                     modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)

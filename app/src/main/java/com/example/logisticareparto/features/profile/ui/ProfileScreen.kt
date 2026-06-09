@@ -110,7 +110,7 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Selector de Idioma
+            // idioma
             var showLangDialog by remember { mutableStateOf(false) }
 
             OutlinedButton(
@@ -165,7 +165,7 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // boton Cambiar Camión
+            // cambio de camion
             OutlinedButton(
                 onClick = onChangeTruck,
                 modifier = Modifier.fillMaxWidth(),
@@ -179,7 +179,8 @@ fun ProfileScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            
+
+            //cerrar sesion
             Button(
                 onClick = { 
                     authViewModel.logout()

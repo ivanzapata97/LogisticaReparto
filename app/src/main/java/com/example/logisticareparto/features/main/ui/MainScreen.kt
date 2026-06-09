@@ -47,7 +47,7 @@ fun MainScreen(
     val icons = listOf(Icons.Default.Assignment, Icons.Default.Search, Icons.Default.Route, Icons.Default.Person)
 
     Scaffold(
-        bottomBar = {
+        bottomBar = {// navbar de la app
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant

@@ -76,14 +76,14 @@ fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: ()
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp)
             ) {
-                // Tarjeta de Identificación Principal (Imagen con Nombre encima)
+                //card de identificacion del cliente
                 Card(
                     modifier = Modifier.fillMaxWidth().height(220.dp),
                     shape = RoundedCornerShape(16.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        // Imagen de fondo
+                        // foto del cliente
                         if (client.imagenUrl.isNotEmpty()) {
                             AsyncImage(
                                 model = client.imagenUrl,
@@ -92,7 +92,7 @@ fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: ()
                                 contentScale = ContentScale.Crop
                             )
                         } else {
-                            // Placeholder si no hay imagen
+                            // imagen default si no hay foto
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -108,7 +108,7 @@ fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: ()
                             }
                         }
 
-                        // Banner de texto inferior
+                        // nombre del cliente y cod del cliente
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
@@ -144,7 +144,7 @@ fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: ()
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Información General
+                // informacion general
                 Text(text = stringResource(R.string.label_general_info), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.padding(bottom = 12.dp))
 
                 DetailInfoItem(icon = Icons.Default.LocationOn, label = stringResource(R.string.label_address), value = client.direccion)
@@ -171,7 +171,7 @@ fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: ()
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Mini Mapa
+                // mapita
                 if (client.latitud != 0.0 && client.longitud != 0.0) {
                     val location = LatLng(client.latitud, client.longitud)
                     val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(location, 15f) }
@@ -189,7 +189,7 @@ fun ClientDetailScreen(clientId: String, viewModel: ClientsViewModel, onBack: ()
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Botón de Editar
+                // editar
                 Button(
                     onClick = onEditClick,
                     modifier = Modifier.fillMaxWidth().height(56.dp),
