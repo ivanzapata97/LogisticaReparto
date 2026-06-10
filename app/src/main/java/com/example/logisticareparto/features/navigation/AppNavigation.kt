@@ -1,6 +1,7 @@
 package com.example.logisticareparto.features.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
@@ -54,7 +55,8 @@ fun AppNavigation() {
         "login"
     }
 
-    NavHost(navController = navController, startDestination = startDestination) {
+    key(clientsViewModel.currentLanguage) {
+        NavHost(navController = navController, startDestination = startDestination) {
         composable("login") {
             LoginScreen(
                 viewModel = authViewModel,
@@ -106,5 +108,6 @@ fun AppNavigation() {
                 }
             )
         }
+    }
     }
 }

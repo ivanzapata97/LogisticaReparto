@@ -12,7 +12,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,15 +27,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,15 +47,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
 import com.example.logisticareparto.BuildConfig
 import com.example.logisticareparto.notifications.RouteNotificationHelper
@@ -324,7 +321,10 @@ fun RouteScreen(viewModel: ClientsViewModel, onClientClick: (String) -> Unit) {
                     routeDraft = routeDraft,
                     redColor = primaryColor,
                     onClientClick = onClientClick,
-                    onMove = viewModel::moveClientInRoute,
+                    onMoveUp = viewModel::moveClientUp,
+                    onMoveDown = viewModel::moveClientDown,
+                    onMoveToFirst = viewModel::moveClientToFirst,
+                    onMoveToLast = viewModel::moveClientToLast,
                     onRemove = viewModel::removeClientFromRoute,
                     onReset = viewModel::resetRouteState
                 )
@@ -366,14 +366,13 @@ private fun UnifiedRouteDraftContent(
     routeDraft: List<Client>,
     redColor: Color,
     onClientClick: (String) -> Unit,
-    onMove: (Int, Int) -> Unit,
+    onMoveUp: (String) -> Unit,
+    onMoveDown: (String) -> Unit,
+    onMoveToFirst: (String) -> Unit,
+    onMoveToLast: (String) -> Unit,
     onRemove: (String) -> Unit,
     onReset: () -> Unit
 ) {
-    val listState = rememberLazyListState()
-    var draggingItemIndex by remember { mutableStateOf<Int?>(null) }
-    var dragOffset by remember { mutableStateOf(0f) }
-
     Column(modifier = modifier.fillMaxSize()) {
         val clientsWithCoordinates = routeDraft.filter(::hasValidCoordinates)
         if (clientsWithCoordinates.isNotEmpty()) {
@@ -415,88 +414,91 @@ private fun UnifiedRouteDraftContent(
         )
 
         LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .weight(1f)
-                .pointerInput(routeDraft) {
-                    detectDragGesturesAfterLongPress(
-                        onDragStart = { offset ->
-                            listState.layoutInfo.visibleItemsInfo
-                                .firstOrNull { item ->
-                                    offset.y.toInt() in item.offset..(item.offset + item.size)
-                                }
-                                ?.let { item ->
-                                    if (item.index < routeDraft.size) {
-                                        draggingItemIndex = item.index
-                                    }
-                                }
-                        },
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            dragOffset += dragAmount.y
-
-                            val currentDraggingIndex = draggingItemIndex ?: return@detectDragGesturesAfterLongPress
-                            val currentItem = listState.layoutInfo.visibleItemsInfo.find { it.index == currentDraggingIndex } ?: return@detectDragGesturesAfterLongPress
-                            
-                            val draggingItemCenter = currentItem.offset + (currentItem.size / 2) + dragOffset
-
-                            val targetItem = listState.layoutInfo.visibleItemsInfo.find { item ->
-                                draggingItemCenter.toInt() in item.offset..(item.offset + item.size)
-                            }
-
-                            if (targetItem != null && targetItem.index != currentDraggingIndex && targetItem.index < routeDraft.size) {
-                                val oldOffset = currentItem.offset
-                                onMove(currentDraggingIndex, targetItem.index)
-                                draggingItemIndex = targetItem.index
-                                dragOffset += (oldOffset - targetItem.offset)
-                            }
-                        },
-                        onDragEnd = {
-                            draggingItemIndex = null
-                            dragOffset = 0f
-                        },
-                        onDragCancel = {
-                            draggingItemIndex = null
-                            dragOffset = 0f
-                        }
-                    )
-                },
+            modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             itemsIndexed(routeDraft, key = { _, client -> client.id }) { index, client ->
-                val isDragging = index == draggingItemIndex
-                
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .zIndex(if (isDragging) 1f else 0f)
-                        .graphicsLayer {
-                            translationY = if (isDragging) dragOffset else 0f
-                            scaleX = if (isDragging) 1.05f else 1f
-                            scaleY = if (isDragging) 1.05f else 1f
-                            alpha = if (isDragging) 0.9f else 1f
-                        }
-                ) {
-                    ClientItem(
-                        client = client,
-                        onClick = { onClientClick(client.id) },
-                        actionContent = {
-                            Icon(
-                                imageVector = Icons.Default.DragHandle,
-                                contentDescription = null,
-                                tint = Color.LightGray,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            IconButton(onClick = { onRemove(client.id) }) {
-                                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.text_reset_draft), tint = redColor)
+                var showMenu by remember { mutableStateOf(false) }
+
+                ClientItem(
+                    client = client,
+                    onClick = { onClientClick(client.id) },
+                    actionContent = {
+                        Box {
+                            IconButton(onClick = { showMenu = true }) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = "Opciones",
+                                    tint = Color.Gray
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { showMenu = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Subir") },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.ArrowUpward, contentDescription = null)
+                                    },
+                                    onClick = {
+                                        showMenu = false
+                                        onMoveUp(client.id)
+                                    },
+                                    enabled = index > 0
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Bajar") },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.ArrowDownward, contentDescription = null)
+                                    },
+                                    onClick = {
+                                        showMenu = false
+                                        onMoveDown(client.id)
+                                    },
+                                    enabled = index < routeDraft.lastIndex
+                                )
+                                HorizontalDivider()
+                                DropdownMenuItem(
+                                    text = { Text("Mover al inicio") },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.ArrowUpward, contentDescription = null)
+                                    },
+                                    onClick = {
+                                        showMenu = false
+                                        onMoveToFirst(client.id)
+                                    },
+                                    enabled = index > 0
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Mover al final") },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.ArrowDownward, contentDescription = null)
+                                    },
+                                    onClick = {
+                                        showMenu = false
+                                        onMoveToLast(client.id)
+                                    },
+                                    enabled = index < routeDraft.lastIndex
+                                )
+                                HorizontalDivider()
+                                DropdownMenuItem(
+                                    text = { Text("Eliminar", color = redColor) },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.Delete, contentDescription = null, tint = redColor)
+                                    },
+                                    onClick = {
+                                        showMenu = false
+                                        onRemove(client.id)
+                                    }
+                                )
                             }
                         }
-                    )
-                }
+                    }
+                )
             }
-            
+
             item {
                 TextButton(
                     onClick = onReset,
@@ -678,16 +680,13 @@ private fun ActiveRouteContent(
             itemsIndexed(pendingStops, key = { _, stop -> stop.clientId }) { index, stop ->
                 val client = stopToClient(stop)
                 
-                val bgColor = when (index) {
-                    0 -> Color(0xFFFFF9C4)
-                    1 -> Color(0xFFE30613).copy(alpha = 0.1f)
-                    else -> Color.White
-                }
+                val bgColor = if (index == 0) Color(0xFFE8F0FE) else Color.White
                 
                 ClientItem(
                     client = client,
                     onClick = { onClientClick(client.id) },
                     containerColor = bgColor,
+                    contentColor = Color.Black,
                     actionContent = {
                         Button(
                             onClick = { onMarkVisited(stop) },
@@ -717,6 +716,7 @@ private fun ActiveRouteContent(
                         client = client,
                         onClick = { onClientClick(client.id) },
                         containerColor = Color(0xFFF5F5F5),
+                        contentColor = Color.Black,
                         actionContent = {
                             Button(
                                 onClick = {},

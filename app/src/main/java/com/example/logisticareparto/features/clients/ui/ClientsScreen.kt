@@ -104,6 +104,7 @@ fun ClientItem(
     client: Client,
     onClick: () -> Unit,
     containerColor: Color = MaterialTheme.colorScheme.surface,
+    contentColor: Color? = null,
     actionContent: (@Composable RowScope.() -> Unit)? = null
 ) {
     Card(
@@ -129,12 +130,12 @@ fun ClientItem(
                 Text(
                     text = client.cliente,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = contentColor ?: MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = client.direccion,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = contentColor ?: MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 val scheduleState = client.getScheduleState()

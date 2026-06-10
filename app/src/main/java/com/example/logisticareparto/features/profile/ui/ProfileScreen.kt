@@ -19,9 +19,9 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import com.example.logisticareparto.R
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
+import com.example.logisticareparto.utils.LocaleHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +36,7 @@ fun ProfileScreen(
     
     val currentLang = clientsViewModel.currentLanguage
     val stats = clientsViewModel.driverStats
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         clientsViewModel.loadDriverStats()
@@ -132,7 +133,7 @@ fun ProfileScreen(
                             TextButton(
                                 onClick = {
                                     clientsViewModel.setLanguage("es")
-                                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("es"))
+                                    LocaleHelper.updateLocale(context, "es")
                                     showLangDialog = false
                                 },
                                 modifier = Modifier.fillMaxWidth()
@@ -146,7 +147,7 @@ fun ProfileScreen(
                             TextButton(
                                 onClick = {
                                     clientsViewModel.setLanguage("en")
-                                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("en"))
+                                    LocaleHelper.updateLocale(context, "en")
                                     showLangDialog = false
                                 },
                                 modifier = Modifier.fillMaxWidth()

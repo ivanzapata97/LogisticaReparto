@@ -221,6 +221,52 @@ class ClientsViewModel(
         routeSaveUiState = RouteSaveUiState.Idle
     }
 
+    fun moveClientUp(clientId: String) {
+        val index = routeDraft.indexOfFirst { it.id == clientId }
+        if (index > 0) {
+            val updatedDraft = routeDraft.toMutableList()
+            val current = updatedDraft[index]
+            updatedDraft[index] = updatedDraft[index - 1]
+            updatedDraft[index - 1] = current
+            routeDraft = updatedDraft
+            routeSaveUiState = RouteSaveUiState.Idle
+        }
+    }
+
+    fun moveClientDown(clientId: String) {
+        val index = routeDraft.indexOfFirst { it.id == clientId }
+        if (index >= 0 && index < routeDraft.lastIndex) {
+            val updatedDraft = routeDraft.toMutableList()
+            val current = updatedDraft[index]
+            updatedDraft[index] = updatedDraft[index + 1]
+            updatedDraft[index + 1] = current
+            routeDraft = updatedDraft
+            routeSaveUiState = RouteSaveUiState.Idle
+        }
+    }
+
+    fun moveClientToFirst(clientId: String) {
+        val index = routeDraft.indexOfFirst { it.id == clientId }
+        if (index > 0) {
+            val updatedDraft = routeDraft.toMutableList()
+            val item = updatedDraft.removeAt(index)
+            updatedDraft.add(0, item)
+            routeDraft = updatedDraft
+            routeSaveUiState = RouteSaveUiState.Idle
+        }
+    }
+
+    fun moveClientToLast(clientId: String) {
+        val index = routeDraft.indexOfFirst { it.id == clientId }
+        if (index >= 0 && index < routeDraft.lastIndex) {
+            val updatedDraft = routeDraft.toMutableList()
+            val item = updatedDraft.removeAt(index)
+            updatedDraft.add(item)
+            routeDraft = updatedDraft
+            routeSaveUiState = RouteSaveUiState.Idle
+        }
+    }
+
     fun moveRouteStopUp(index: Int) {
         if (index <= 0 || index >= routeDraft.size) return
         val updatedDraft = routeDraft.toMutableList()
